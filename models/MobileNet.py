@@ -1,4 +1,7 @@
 import torch.nn as nn
+import torch
+from torch.utils.data import DataLoader
+from train import train_objective
 
 class MobileNetBlock(nn.Module):
     def __init__(self, in_channels, out_channels, stride):
@@ -32,7 +35,7 @@ class MobileNetBlock(nn.Module):
         return self.pointwise_conv(x)
 
 class MobileNet(nn.Module):
-    def __init__(self, alpha=1, num_classes=6):
+    def __init__(self, alpha=1, num_classes=2):
         super().__init__()
         self.alpha = alpha
         self.num_classes = num_classes
@@ -81,3 +84,27 @@ class MobileNet(nn.Module):
         out = self.avg_pool(out)
         out = self.flatten(out)
         return self.fc(out)
+
+    def objective(self, trail, train_data, val_data, epochs, num_classes):
+        lr = trail.suggest_float('lr', 5e-6, 1e-3, log=True)
+        batch_size = trail.suggest_int('batch_size', 4, 16)
+
+        alpha = trail.suggest_float('alpha', 0, 1)
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        model = MobileNet(num_classes=num_classes, alpha = alpha).to(device)
+
+        optim = torch.optim.Adam(params=model.parameters(), lr=lr, weight_decay=0.01)
+        loss_fn = nn.CrossEntropyLoss()
+
+        train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+        val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
+        loss = train_objective(train_data=train_data,
+                                train_loader=train_loader,
+                                valid_loader=val_loader,
+                                model = model,
+                                optim = optim,
+                                loss_fn = loss_fn,
+                                epochs=epochs,
+                                device = device
+                                )
+        return loss

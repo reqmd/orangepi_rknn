@@ -1,43 +1,34 @@
-import torch.nn as nn
 import torch
+import torch.nn as nn
 from torch.utils.data import DataLoader
 from train import train_objective
 
-class MLP(nn.Module):
-    def __init__(self, input_size = 32 * 32 * 3, hidden_size = 256, num_classes = 2):
-        super(MLP, self).__init__()
-        self.flatten = nn.Flatten()
-        self.fc1 = nn.Linear(input_size, hidden_size)
-        self.bn1 = nn.BatchNorm1d(hidden_size)
+class SP(nn.Module):
+    def __init__(self, input_size = 8 * 8 * 3, num_classes = 2):
+        super(SP, self).__init__()
+        self.fc = nn.Linear(input_size, num_classes)
+        self.bn = nn.BatchNorm1d(num_classes)
         self.relu = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, num_classes)
-        self.bn2 = nn.BatchNorm1d(num_classes)
 
-    def __call__(self, *args, **kwds):
-        return super().__call__(*args, **kwds)
-
-    def forward(self, x):
-        out = self.flatten(x)
-        out = self.fc1(out)
-        out = self.bn1(out)
+    def forward(self, X):
+        out = self.fc(X)
+        out = self.bn(out)
         out = self.relu(out)
-        out = self.fc2(out)
-        out = self.bn2(out)
         return out
-    
+
     def objective(self, trail, train_data, val_data, epochs, num_classes):
         lr = trail.suggest_float('lr', 5e-6, 1e-3, log=True)
         batch_size = trail.suggest_int('batch_size', 4, 16)
 
-        hidden_size = trail.suggest_int('hidden_size', 128, 1024)
-
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        model = MLP(num_classes=num_classes,  hidden_size=hidden_size).to(device)
+        model = SP(num_classes=num_classes).to(device)
+        
         optim = torch.optim.Adam(params=model.parameters(), lr=lr, weight_decay=0.01)
         loss_fn = nn.CrossEntropyLoss()
 
         train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
+
         loss = train_objective(train_data=train_data,
                                 train_loader=train_loader,
                                 valid_loader=val_loader,
