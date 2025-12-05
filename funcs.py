@@ -46,8 +46,8 @@ def choise_model(avg_sizes):
     H, W = avg_sizes
     for idx, res in enumerate(params['size']):
         if H <= res and W <= res :
-            end_resolutions = params['size'][idx]
-            end_models = params['model'][idx]
+            end_resolutions = [params['size'][idx:]]
+            end_models = [params['model'][idx:]]
             break
 
     if res <= H and res <= W:

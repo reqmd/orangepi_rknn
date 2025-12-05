@@ -3,8 +3,11 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Subset, TensorDataset
 import torch.nn.functional as F
+from torchvision import transforms
 from sklearn.metrics import f1_score
 from sklearn.metrics import f1_score
+
+from dataset import LabeledDataset
 
 def train_objective(
     train_data,
@@ -93,6 +96,7 @@ def train_final(
     epochs,
     f1_threshhold,
     model_name = 'best_model.pth',
+    batch_size = None,
     pseudo_labeling = None
 ):
     
@@ -157,11 +161,11 @@ def train_final(
                 model = model,
                 pseudo_root = pseudo_labeling,
                 train_data = train_data,
-                valid_loader = valid_loader,
+                optim=optim,
                 threshhold=0.95,
                 n_iter = 3,
                 epochs_retrain=5,
-                batch_size= 8,
+                batch_size= batch_size,
                 stratify = None
             )
     print(f'Лучшая метрика была достигнута на {f1_best_epoch} эпохе, значение f1 {f1_best:.6f}')
@@ -171,16 +175,20 @@ def train_final(
 
 def pseudo_label(model, 
                  pseudo_root, 
-                 train_data, 
-                 valid_loader, 
-                 threshhold, 
-                 n_iter, 
+                 train_data,   
                  device,
-                 epochs_retrain = 3, 
+                 optim,
+                 threshhold = 0.95,
+                 n_iter = 3,
+                 epochs_retrain = 5, 
                  batch_size = 8, 
                  stratify = None
                 ):
     print('Начало псведо разметки')
+    val_transform = transforms.Compose([
+        transforms.Resize((train_data[0][0].shape[1], train_data[0][0].shape[2])), 
+        transforms.ToTensor()
+    ])
     full_data = LabeledDataset(pseudo_root, transform=val_transform)
     random_indices = np.random.permutation(len(full_data))
     pseudo_data = Subset(full_data, random_indices[:1000])
@@ -240,7 +248,6 @@ def pseudo_label(model,
             loss_fn = nn.CrossEntropyLoss()
             
         counter_pat = 0
-        
         model.train()
         for epoch in range(epochs_retrain):
             best_loss = float('inf')
@@ -258,35 +265,35 @@ def pseudo_label(model,
                 train_loss.append(loss.cpu().detach().numpy())
             print(f'Epoch: {epoch+1}/{epochs_retrain}, Loss: {np.mean(train_loss):.5f}')
         
-            model.eval()
-            test_acc = []
-            test_loss = []
+            #model.eval()
+            #test_acc = []
+            #test_loss = []
 
-            best_loss = float('inf')
+            #best_loss = float('inf')
             
-            patience = 2
-            for X, y in valid_loader:
+            #patience = 2
+            #for X, y in valid_loader:
                 #X = X.view(-1, 3*32*32).to(device)
-                X = X.to(device)
-                y = y.to(device)
-                y_pred = model(X)
-                val_loss = loss_fn(y_pred, y)
-                test_loss.append(val_loss.cpu().detach().numpy())
+                #X = X.to(device)
+                #y = y.to(device)
+                #y_pred = model(X)
+                ##val_loss = loss_fn(y_pred, y)
+                #test_loss.append(val_loss.cpu().detach().numpy())
                 #early_stop(val_loss, model)
-                y_pred = torch.argmax(y_pred, dim=1)
-                acc = sum(y == y_pred) / len(y)
-                test_acc.append(acc.cpu().detach().numpy())
-            print(f'Accuracy: {np.mean(test_acc) * 100:.2f}, Test Loss: {np.mean(test_loss)}\n')
+                #y_pred = torch.argmax(y_pred, dim=1)
+                #acc = sum(y == y_pred) / len(y)
+                #test_acc.append(acc.cpu().detach().numpy())
+            #print(f'Accuracy: {np.mean(test_acc) * 100:.2f}, Test Loss: {np.mean(test_loss)}\n')
 
-            if best_loss > np.mean(test_loss):
-                best_loss = np.mean(test_loss)
-                counter_pat = 0
-                torch.save(model.state_dict(), model_name) 
-            else:
-                counter_pat+=1
+            #if best_loss > np.mean(test_loss):
+                #best_loss = np.mean(test_loss)
+                #counter_pat = 0
+                #torch.save(model.state_dict(), model_name) 
+            #else:
+                #counter_pat+=1
                 
-            if counter_pat >= patience:
-                break
+            #if counter_pat >= patience:
+                #break
             #print(counter_pat)
             #print(batch_size)
     print(f'Лучшая модель была с точностью: {best_loss}, её веса сохранены в файл: {model_name}')

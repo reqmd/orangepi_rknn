@@ -94,8 +94,3 @@ for n in range(len(resolutions)):
     if f1_threshhold > 0.98:
         print(f'Получена лучшая модель с разрешением {resolutions[n], }, параметрами: {params}, с лучшей метрикой {f1_threshhold:.6f}')
         break
-
-
-
-
-
