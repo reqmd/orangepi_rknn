@@ -7,16 +7,15 @@ from functools import partial
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+import yaml
 
 from dataset import LabeledDataset, TrainTestSubset
-from funcs import calculate_avg_size_per_class, choise_model
+from funcs import choise_model, match_case
 from models import MLP, MobileNet, SP, CNN
 from train import train_final
 
 labeled_root = r'C:\Users\Куликов\rice_dataset\valid'
 data = LabeledDataset(labeled_root)
-#avg_sizes, (max_h, max_w) = calculate_avg_size_per_class(labeled_dataset, num_classes)
-#print(max_h, max_w)
 indices = list(range(len(data)))
 train_indices, val_indices = train_test_split(indices, test_size=0.5, random_state=42, stratify=data.labels)
 
@@ -28,6 +27,7 @@ for images, _ in data:
 size_0 = int(np.mean(H))
 size_1 = int(np.mean(W))
 
+model_name = 'best_model.pth'
 resolutions, models = choise_model([size_0, size_1])
 f1_threshhold = 0
 
@@ -61,15 +61,9 @@ for n in range(len(resolutions)):
     study = optuna.create_study(direction='minimize', sampler=optuna.samplers.CmaEsSampler())
     study.optimize(objective, n_trials=n_trials)
     params = study.best_params
-    match resolutions[n]:
-        case 8:
-            model = SP.SP(num_classes=num_classes).to(device)
-        case 32:
-            model = MLP.MLP(num_classes=num_classes, hidden_size=params['hidden_size']).to(device)
-        case 64:
-            model = CNN.CNN(num_classes=num_classes, n_filters = params['n_filters'], dropout_p=params['dropout_p'], hidden_size=params['hidden_size']).to(device)
-        case 224:
-            model = MobileNet.MobileNet(num_classes=num_classes, alpha=params['alpha']).to(device)
+    params['resolution'] = resolutions[n]
+    params['num_classes'] = num_classes
+    model = match_case(params)
 
     print('///////////////////////////////////////')
     print(params)
@@ -88,9 +82,16 @@ for n in range(len(resolutions)):
                             loss_fn = loss_fn,
                             epochs=epochs,
                             device = device,
-                            f1_threshhold = f1_threshhold
+                            model_name=model_name
                             )
-    print(f1_threshhold)
+    #print(f1_threshhold)
     if f1_threshhold > 0.98:
-        print(f'Получена лучшая модель с разрешением {resolutions[n], }, параметрами: {params}, с лучшей метрикой {f1_threshhold:.6f}')
+        print(f'Получена лучшая модель с параметрами: {params}, с лучшей метрикой {f1_threshhold:.6f}')
+        print(f'Сохранена под именем {model_name}')
         break
+
+#проще всего будет сохранять YAML файл с конфигурацией
+params['device'] = device
+yaml_data = {'params':params}
+with open('config.yaml', 'w') as file:
+    yaml.dump(yaml_data, file, default_flow_style=False)

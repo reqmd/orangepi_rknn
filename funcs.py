@@ -1,5 +1,6 @@
 import numpy as np
 from torch.utils.data import Dataset
+import torch
 
 from models import MLP, MobileNet, SP, CNN
 def calculate_avg_size_per_class(dataset: Dataset, num_classes: int):
@@ -56,3 +57,19 @@ def choise_model(avg_sizes):
         end_models = [params['model'][1], params['model'][2], params['model'][3]]
         
     return end_resolutions, end_models
+
+def match_case(params = None, yaml = None):
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    if yaml != None and params == None:
+        with open('config.yaml', 'r') as file:
+            params = yaml.safe_load(file)
+    match params['resolution']:
+        case 8:
+            model = SP.SP(num_classes=params['num_classes']).to(device)
+        case 32:
+            model = MLP.MLP(num_classes=params['num_classes'], hidden_size=params['hidden_size']).to(device)
+        case 64:
+            model = CNN.CNN(num_classes=params['num_classes'], n_filters = params['n_filters'], dropout_p=params['dropout_p'], hidden_size=params['hidden_size']).to(device)
+        case 224:
+            model = MobileNet.MobileNet(num_classes=params['num_classes'], alpha=params['alpha']).to(device)
+    return model

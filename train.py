@@ -8,6 +8,7 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import f1_score
 
 from dataset import LabeledDataset
+from funcs import match_case
 
 def train_objective(
     train_data,
@@ -94,7 +95,6 @@ def train_final(
     loss_fn, 
     device,
     epochs,
-    f1_threshhold,
     model_name = 'best_model.pth',
     batch_size = None,
     pseudo_labeling = None
@@ -119,7 +119,7 @@ def train_final(
             loss.backward()
             optim.step()
             train_loss.append(loss.cpu().detach().numpy())
-        print(f'Epoch {epoch + 1}/{epochs}, Train Loss{np.mean(train_loss)}')
+        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {np.mean(train_loss)}')
     
         model.eval()
         test_loss = []
@@ -155,20 +155,23 @@ def train_final(
         if f1 >= f1_best:
             f1_best = f1
             f1_best_epoch = epoch
-        
-        if pseudo_labeling != None:
-            pseudo_label(
-                model = model,
-                pseudo_root = pseudo_labeling,
-                train_data = train_data,
-                optim=optim,
-                threshhold=0.95,
-                n_iter = 3,
-                epochs_retrain=5,
-                batch_size= batch_size,
-                stratify = None
-            )
-    print(f'Лучшая метрика была достигнута на {f1_best_epoch} эпохе, значение f1 {f1_best:.6f}')
+            torch.save(model.state_dict(), model_name)
+
+    print(f'Лучшая метрика была достигнута на {f1_best_epoch+1} эпохе, значение f1 {f1_best:.6f}')
+
+    if pseudo_labeling != None:
+        pseudo_label(
+            model = model,
+            pseudo_root = pseudo_labeling,
+            train_data = train_data,
+            optim=optim,
+            threshhold=0.95,
+            n_iter = 3,
+            epochs_retrain=5,
+            batch_size= batch_size,
+            stratify = None
+        )
+
     return f1_best
 
 
@@ -297,4 +300,33 @@ def pseudo_label(model,
             #print(counter_pat)
             #print(batch_size)
     print(f'Лучшая модель была с точностью: {best_loss}, её веса сохранены в файл: {model_name}')
+    return model
+
+def train_newdata(train_data, val_data, new_data, params, clear_train = True):
+    #пока работает для обучения сначала, НО НЕ ДЛЯ дообучения
+    if clear_train == True:
+        model = match_case(params=params)
+    else:
+        pass
+
+    combined_data = torch.utils.data.ConcatDataset([train_data, new_data])
+    combined_loader = DataLoader(combined_data, batch_size=params['batch_size'], shuffle=True)
+    val_loader = DataLoader(val_data, batch_size=params['batch_size'], shuffle=False)
+
+    optim = torch.optim.Adam(params=model.parameters(), lr=params['lr'], weight_decay=0.01)
+    loss_fn = nn.CrossEntropyLoss()
+    device = params['device']
+    epochs = 228
+
+    train_final(
+    train_data=combined_data,
+    train_loader=combined_loader, 
+    valid_loader=val_loader,  
+    model=model, 
+    optim=optim, 
+    loss_fn=loss_fn, 
+    device=device,
+    epochs=epochs
+)
+    
     return model
