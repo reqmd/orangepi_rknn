@@ -2,3 +2,5 @@
 .vscode/
 __pycache__/
 models/__pycache__/
+best_model.pth
+config.yaml
