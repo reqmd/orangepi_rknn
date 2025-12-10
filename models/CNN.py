@@ -1,7 +1,8 @@
 import torch.nn as nn
 import torch
 from torch.utils.data import DataLoader
-from train import train_objective, train_final
+
+import train
 
 class CNN(nn.Module):
     def __init__(self, num_classes = 2, n_filters = 16, dropout_p = 0.33, hidden_size = 256):
@@ -55,7 +56,7 @@ class CNN(nn.Module):
 
         train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
-        loss = train_objective(train_data=train_data,
+        loss = train.train_objective(
                                 train_loader=train_loader,
                                 valid_loader=val_loader,
                                 model = model,
@@ -65,13 +66,13 @@ class CNN(nn.Module):
                                 device = self.device
                                 )
         return loss
-    def new_class(self, params, num_classes, epochs, train_data, val_data, freeze_param, model_name = 'best_model.pth'):
+    def transfer_train(self, params, epochs, train_data, val_data, freeze_param, model_name = 'best_model.pth'):
         #freeze_param: int -->  0 - ничего не замораживать, обучение по новой
                                #1 - НЕ замораживаем последний слой, остальное замораживаем
                                #2 - заморозили всю свертку
                                #3 - замораживаем только первый сверточный слой
                  
-        model = CNN(num_classes=num_classes, 
+        model = CNN(num_classes=params['num_classes'], 
                     n_filters = params['n_filters'], 
                     dropout_p=params['dropout_p'], 
                     hidden_size=params['hidden_size']).to(self.device)
@@ -144,7 +145,7 @@ class CNN(nn.Module):
         train_loader = DataLoader(train_data, batch_size=params['batch_size'], shuffle=True)
         val_loader = DataLoader(val_data, batch_size=params['batch_size'], shuffle=False)
 
-        f1_best = train_final(train_data=train_data,
+        f1_best = train.train_final(train_data=train_data,
                             train_loader=train_loader,
                             valid_loader=val_loader,
                             model = model,

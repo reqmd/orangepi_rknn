@@ -4,3 +4,4 @@ __pycache__/
 models/__pycache__/
 best_model.pth
 config.yaml
+pseudo_model.pth

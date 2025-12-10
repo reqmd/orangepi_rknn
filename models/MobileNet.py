@@ -1,7 +1,8 @@
 import torch.nn as nn
 import torch
 from torch.utils.data import DataLoader
-from train import train_objective, train_final
+
+import train
 
 class MobileNetBlock(nn.Module):
     def __init__(self, in_channels, out_channels, stride):
@@ -98,7 +99,7 @@ class MobileNet(nn.Module):
 
         train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
-        loss = train_objective(train_data=train_data,
+        loss = train.train_objective(
                                 train_loader=train_loader,
                                 valid_loader=val_loader,
                                 model = model,
@@ -109,12 +110,12 @@ class MobileNet(nn.Module):
                                 )
         return loss
     
-    def new_class(self, params, num_classes, epochs, train_data, val_data, freeze_param, model_name = 'best_model.pth'):
+    def transfer_train(self, params, epochs, train_data, val_data, freeze_param, model_name = 'best_model.pth'):
         #freeze_param: int -->  0 - ничего не замораживать, обучение по новой
                                #1 - НЕ замораживаем последний слой, остальное замораживаем
                                #2 - замораживаем все, кроме fc и 2-х последних сверточных блоков
                  
-        model = MobileNet(num_classes=num_classes, alpha=params['alpha']).to(self.device)
+        model = MobileNet(num_classes=params['num_classes'], alpha=params['alpha']).to(self.device)
         if freeze_param == 1:
             #загрузили веса
             model.load_state_dict(model_name)
@@ -170,7 +171,7 @@ class MobileNet(nn.Module):
         train_loader = DataLoader(train_data, batch_size=params['batch_size'], shuffle=True)
         val_loader = DataLoader(val_data, batch_size=params['batch_size'], shuffle=False)
 
-        f1_best = train_final(train_data=train_data,
+        f1_best = train.train_final(train_data=train_data,
                             train_loader=train_loader,
                             valid_loader=val_loader,
                             model = model,

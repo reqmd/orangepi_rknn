@@ -1,25 +1,23 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, Subset, TensorDataset
+from torch.utils.data import DataLoader, TensorDataset
 import torch.nn.functional as F
 from torchvision import transforms
 from sklearn.metrics import f1_score
-from sklearn.metrics import f1_score
 
-from dataset import LabeledDataset
-from funcs import match_case
+from utils.dataset import LabeledDataset, solve_imbalance, TrainTestSubset
+from utils import funcs
+
 
 def train_objective(
-    train_data,
     train_loader, 
     valid_loader,  
     model, 
     optim, 
     loss_fn, 
     device,
-    epochs,
-    pseudo_labeling = None
+    epochs
 ):
     
     total_loss = []
@@ -70,33 +68,19 @@ def train_objective(
 
     print(f'F1: {f1_score(y_trues, y_preds, average='weighted'):.6f}, Test Loss {np.mean(test_loss)}\n')
 
-    if pseudo_labeling != None:
-        pseudo_label(
-            model = model,
-            pseudo_root = pseudo_labeling,
-            train_data = train_data,
-            valid_loader = valid_loader,
-            threshhold=0.95,
-            n_iter = 3,
-            epochs_retrain=5,
-            batch_size= 8,
-            stratify = None
-        )
     return total_loss[-1]
 
 
 
 def train_final(
     train_data,
-    train_loader, 
-    valid_loader,  
+    train_loader,
+    val_data, 
+    val_loader,  
     model, 
-    optim, 
-    loss_fn, 
-    device,
+    params,
     epochs,
     model_name = 'best_model.pth',
-    batch_size = None,
     pseudo_labeling = None
 ):
     
@@ -105,14 +89,16 @@ def train_final(
     counter = 0
     f1_best = 0
     f1_best_epoch = 0
+    loss_fn = nn.CrossEntropyLoss()
+    optim = torch.optim.Adam(params = model.parameters(), lr = params['lr'], weight_decay=0.01)
 
     print('Начат цикл обучения:')
     for epoch in range(epochs):
         train_loss = []
         model.train()
         for X, y in train_loader:
-            X = X.to(device)
-            y = y.to(device)
+            X = X.to(params['device'])
+            y = y.to(params['device'])
             y_pred = model(X)
             optim.zero_grad()
             loss = loss_fn(y_pred, y)
@@ -127,9 +113,9 @@ def train_final(
         y_trues = []
         patience = 3
         
-        for X, y in valid_loader:
-            X = X.to(device)
-            y = y.to(device)
+        for X, y in val_loader:
+            X = X.to(params['device'])
+            y = y.to(params['device'])
             y_trues.extend(y.cpu().numpy())
             y_pred = model(X)
             val_loss = loss_fn(y_pred, y)
@@ -158,59 +144,65 @@ def train_final(
             torch.save(model.state_dict(), model_name)
 
     print(f'Лучшая метрика была достигнута на {f1_best_epoch+1} эпохе, значение f1 {f1_best:.6f}')
-
     if pseudo_labeling != None:
-        pseudo_label(
+        f1_best_pseudo = pseudo_label(
             model = model,
+            params=params,
             pseudo_root = pseudo_labeling,
             train_data = train_data,
-            optim=optim,
+            val_data = val_data,
             threshhold=0.95,
             n_iter = 3,
             epochs_retrain=5,
-            batch_size= batch_size,
-            stratify = None
         )
+        print(np.round(f1_best, 6), np.round(f1_best_pseudo, 6))
+        return f1_best, f1_best_pseudo
+    else:
+        return f1_best, 0
 
-    return f1_best
 
 
-
-def pseudo_label(model, 
+def pseudo_label(model,
+                 params, 
                  pseudo_root, 
-                 train_data,   
-                 device,
-                 optim,
+                 train_data,
+                 val_data,   
                  threshhold = 0.95,
                  n_iter = 3,
-                 epochs_retrain = 5, 
-                 batch_size = 8, 
-                 stratify = None
+                 epochs_retrain = 5
                 ):
     print('Начало псведо разметки')
-    val_transform = transforms.Compose([
-        transforms.Resize((train_data[0][0].shape[1], train_data[0][0].shape[2])), 
+    pseudo_transform = transforms.Compose([
+        transforms.Resize((params['resolution'], params['resolution'])), 
         transforms.ToTensor()
     ])
-    full_data = LabeledDataset(pseudo_root, transform=val_transform)
-    random_indices = np.random.permutation(len(full_data))
-    pseudo_data = Subset(full_data, random_indices[:1000])
-    pseudo_loader = DataLoader(pseudo_data, shuffle=True, batch_size=batch_size)
-    model_name = 'best_model.pth'
+    pseudo_data = LabeledDataset(pseudo_root)
+    pseudo_data = TrainTestSubset(pseudo_data, indices=range(len(pseudo_data)), transform=pseudo_transform)
+    pseudo_sampler = solve_imbalance(pseudo_data)
+    
+    pseudo_loader = DataLoader(pseudo_data, sampler=pseudo_sampler, batch_size=params['batch_size'])
+    model_name = 'pseudo_model.pth'
+
+    f1_best = 0
+    best_loss = float('inf')
+    print(best_loss)
+
     for i in range(n_iter):
         print(f'Iter: {i+1}/{n_iter}')
         #print(len(pseudo_loader))
         model.eval()
+
         pseudo_labeled_X = []
         pseudo_labeled_y = []
+
         indices_to_remove = []
         correct_labels = 0
         all_labels = 0
+        local_loss = float('inf')
+
         for batch_idx, (X, y) in enumerate(pseudo_loader):
-            X = X.to(device)
-            y_pred = model(X).to(device)
-            #X_view = X.view(-1, 3*32*32).to(device)
-            #y_pred = model(X_view).to(device)
+            X = X.to(params['device'])
+            y_pred = model(X).to(params['device'])
             probs = F.softmax(y_pred, dim = 1)
             conf, preds = torch.max(probs, 1) #процент уверенности, класс
             #print(conf, preds)
@@ -228,38 +220,40 @@ def pseudo_label(model,
         print(f'Точность псведомаркировки: {correct_labels}/{all_labels}, процент:{correct_labels / all_labels * 100}')
         pseudo_labeled_X = torch.stack(pseudo_labeled_X)
         pseudo_labeled_y = torch.stack(pseudo_labeled_y)
-        #print(pseudo_labeled_X, pseudo_labeled_y)
+
         after_data = TensorDataset(pseudo_labeled_X, pseudo_labeled_y)
-        #combined_loader = DataLoader(after_data, shuffle=True, batch_size=batch_size)
+
+        labels = [label for _, label in after_data]
+        class_counts = np.bincount(labels)
+
+        print(class_counts)
         combined_data = torch.utils.data.ConcatDataset([train_data, after_data])
-        if len(combined_data) > 200 and len(combined_data) < 500:
-            batch_size*=2
-        combined_loader = DataLoader(combined_data, shuffle=True, batch_size=batch_size)
+        combined_sampler = solve_imbalance(combined_data)
+        combined_loader = DataLoader(combined_data, sampler = combined_sampler, batch_size=params['batch_size'])
+
         new_indices = [idx for idx, _ in enumerate(pseudo_data.indices) if idx not in indices_to_remove]
         pseudo_data.indices = [pseudo_data.indices[i] for i in new_indices]
         pseudo_loader = DataLoader(pseudo_data, shuffle=False, batch_size=pseudo_loader.batch_size)
         train_data = combined_data
+
+        val_loader = DataLoader(val_data, batch_size=params['batch_size'], shuffle=True)
         
         if len(pseudo_loader) < 0:
             print('Обучение закончилось, т.к модель не нашла новые данные для обучения')
             break
-            #model = SimpleModel(num_classes=5).to(device)
         print('Начало обучения на псведо разметке')
-        if stratify != None:
-            loss_fn = nn.CrossEntropyLoss(weight=stratify)
-        else:
-            loss_fn = nn.CrossEntropyLoss()
+        loss_fn = nn.CrossEntropyLoss()
             
         counter_pat = 0
+        optim = torch.optim.Adam(params=model.parameters(), lr = params['lr'] * 0.33, weight_decay=0.01)
+
         model.train()
+        all_loss = []
         for epoch in range(epochs_retrain):
-            best_loss = float('inf')
             train_loss = []
             for X, y in combined_loader:
-                #print(X, y)
-                #X = X.view(-1, 3*32*32).to(device)
-                X = X.to(device)
-                y = y.to(device)
+                X = X.to(params['device'])
+                y = y.to(params['device'])
                 y_pred = model(X)
                 optim.zero_grad()
                 loss = loss_fn(y_pred, y)
@@ -267,66 +261,59 @@ def pseudo_label(model,
                 optim.step()
                 train_loss.append(loss.cpu().detach().numpy())
             print(f'Epoch: {epoch+1}/{epochs_retrain}, Loss: {np.mean(train_loss):.5f}')
+            all_loss.append(np.mean(train_loss))
         
-            #model.eval()
-            #test_acc = []
-            #test_loss = []
-
-            #best_loss = float('inf')
+            model.eval()
+            test_loss = []
             
-            #patience = 2
-            #for X, y in valid_loader:
-                #X = X.view(-1, 3*32*32).to(device)
-                #X = X.to(device)
-                #y = y.to(device)
-                #y_pred = model(X)
-                ##val_loss = loss_fn(y_pred, y)
-                #test_loss.append(val_loss.cpu().detach().numpy())
-                #early_stop(val_loss, model)
-                #y_pred = torch.argmax(y_pred, dim=1)
-                #acc = sum(y == y_pred) / len(y)
-                #test_acc.append(acc.cpu().detach().numpy())
-            #print(f'Accuracy: {np.mean(test_acc) * 100:.2f}, Test Loss: {np.mean(test_loss)}\n')
+            patience = 2
+            y_preds = []
+            y_trues = []
+            
 
-            #if best_loss > np.mean(test_loss):
-                #best_loss = np.mean(test_loss)
-                #counter_pat = 0
-                #torch.save(model.state_dict(), model_name) 
-            #else:
-                #counter_pat+=1
+            for X, y in val_loader:
+                X = X.to(params['device'])
+                y = y.to(params['device'])
+                y_trues.extend(y.cpu().numpy())
+                y_pred = model(X)
+                val_loss = loss_fn(y_pred, y)
+                test_loss.append(val_loss.cpu().detach().numpy())
+                y_pred = torch.argmax(y_pred, dim=1)
+                y_preds.extend(y_pred.cpu().numpy())
+
+            f1 = f1_score(y_trues, y_preds, average='weighted')
+            print(f'F1: {f1:.6f}, Test Loss {np.mean(test_loss)}\n')
+
+            #print(best_loss, np.mean(test_loss))
+            if best_loss >= np.mean(test_loss):
+                f1_best = f1
+                best_loss = np.mean(test_loss)
+                print('Была сохранена модель с наименьшим лоссом и метрикой:', best_loss)
+                torch.save(model.state_dict(), model_name) 
+
+            if local_loss >= np.mean(test_loss):
+                local_loss = np.mean(test_loss)
+                counter_pat = 0
+            else:
+                counter_pat+=1
                 
-            #if counter_pat >= patience:
-                #break
-            #print(counter_pat)
-            #print(batch_size)
-    print(f'Лучшая модель была с точностью: {best_loss}, её веса сохранены в файл: {model_name}')
-    return model
+            if counter_pat >= patience:
+                print(f'Ранняя остановка на {1+epoch} эпохе')
+                break
+
+            
+    print(f'Лучшая модель была с наименьшим лоссом: {best_loss}, её веса сохранены в файл: {model_name}')
+    return f1_best
+
+
 
 def train_newdata(train_data, val_data, new_data, params, clear_train = True):
-    #пока работает для обучения сначала, НО НЕ ДЛЯ дообучения
-    if clear_train == True:
-        model = match_case(params=params)
-    else:
-        pass
-
     combined_data = torch.utils.data.ConcatDataset([train_data, new_data])
-    combined_loader = DataLoader(combined_data, batch_size=params['batch_size'], shuffle=True)
-    val_loader = DataLoader(val_data, batch_size=params['batch_size'], shuffle=False)
+    epochs = 10
+    model = funcs.match_case(params=params)
+    if clear_train == True:
+        model.new_class(params, epochs, train_data=combined_data, val_data=val_data, freeze_param=0)
+    else:
+        model.new_class(params, epochs, train_data=combined_data, val_data=val_data, freeze_param=1)
 
-    optim = torch.optim.Adam(params=model.parameters(), lr=params['lr'], weight_decay=0.01)
-    loss_fn = nn.CrossEntropyLoss()
-    device = params['device']
-    epochs = 228
-
-    train_final(
-    train_data=combined_data,
-    train_loader=combined_loader, 
-    valid_loader=val_loader,  
-    model=model, 
-    optim=optim, 
-    loss_fn=loss_fn, 
-    device=device,
-    epochs=epochs
-)
-    
     return model

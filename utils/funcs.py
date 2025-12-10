@@ -1,6 +1,6 @@
 import numpy as np
 from torch.utils.data import Dataset
-import torch
+import yaml
 
 from models import MLP, MobileNet, SP, CNN
 def calculate_avg_size_per_class(dataset: Dataset, num_classes: int):
@@ -58,18 +58,22 @@ def choise_model(avg_sizes):
         
     return end_resolutions, end_models
 
-def match_case(params = None, yaml = None):
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    if yaml != None and params == None:
-        with open('config.yaml', 'r') as file:
-            params = yaml.safe_load(file)
+def match_case(params = None):
     match params['resolution']:
         case 8:
-            model = SP.SP(num_classes=params['num_classes']).to(device)
+            model = SP.SP(num_classes=params['num_classes']).to(params['device'])
         case 32:
-            model = MLP.MLP(num_classes=params['num_classes'], hidden_size=params['hidden_size']).to(device)
+            model = MLP.MLP(num_classes=params['num_classes'], hidden_size=params['hidden_size']).to(params['device'])
         case 64:
-            model = CNN.CNN(num_classes=params['num_classes'], n_filters = params['n_filters'], dropout_p=params['dropout_p'], hidden_size=params['hidden_size']).to(device)
+            model = CNN.CNN(num_classes=params['num_classes'], n_filters = params['n_filters'], dropout_p=params['dropout_p'], hidden_size=params['hidden_size']).to(params['device'])
         case 224:
-            model = MobileNet.MobileNet(num_classes=params['num_classes'], alpha=params['alpha']).to(device)
+            model = MobileNet.MobileNet(num_classes=params['num_classes'], alpha=params['alpha']).to(params['device'])
     return model
+
+def save_yaml(name = 'config.yaml', params = None):
+    with open(name, 'w') as file:
+        yaml.dump(params, file, default_flow_style=False)
+
+def load_yaml(name = 'config.yaml'):
+    with open(name, 'r') as file:
+        return yaml.safe_load(file)

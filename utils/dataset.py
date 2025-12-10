@@ -1,13 +1,13 @@
 import os
 import torch
-from torch.utils.data import DataLoader, Dataset, Subset, TensorDataset, ConcatDataset
+from torch.utils.data import Dataset, WeightedRandomSampler
+import numpy as np
 from PIL import Image
 
 class LabeledDataset(Dataset):
-    def __init__(self, root, transform = None):
+    def __init__(self, root):
         self.root = root
         self.classes = os.listdir(root)
-        self.transform = transform
         self.class_to_idx = {cls_name: idx for idx, cls_name in enumerate(self.classes)}
         self.images = []
         self.labels = []
@@ -39,5 +39,13 @@ class TrainTestSubset(Dataset):
         image, label = self.dataset[self.indices[idx]]
         if self.transform is not None:
             image = self.transform(image)
-            
         return image, label
+    
+def solve_imbalance(data):
+    labels = [label for _, label in data]
+    class_counts = np.bincount(labels)
+    class_weights = 1. / class_counts
+    sample_weights = class_weights[labels]
+    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=int(np.min(class_counts) * len(class_counts)), replacement=False)
+    return sampler
+    

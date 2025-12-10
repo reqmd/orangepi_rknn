@@ -1,7 +1,8 @@
 import torch.nn as nn
 import torch
 from torch.utils.data import DataLoader
-from train import train_objective, train_final
+
+import train
 
 class MLP(nn.Module):
     def __init__(self, input_size = 32 * 32 * 3, hidden_size = 256, num_classes = 2):
@@ -38,7 +39,7 @@ class MLP(nn.Module):
 
         train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
-        loss = train_objective(train_data=train_data,
+        loss = train.train_objective(
                                 train_loader=train_loader,
                                 valid_loader=val_loader,
                                 model = model,
@@ -49,11 +50,11 @@ class MLP(nn.Module):
                                 )
         return loss
     
-    def new_class(self, params, num_classes, epochs, train_data, val_data, freeze_param, model_name = 'best_model.pth'):
+    def transfer_train(self, params, epochs, train_data, val_data, freeze_param, model_name = 'best_model.pth'):
         #freeze_param: int -->  0 - ничего не замораживать, обучение по новой
                                #1 - НЕ замораживаем последний слой, остальное замораживаем
                  
-        model = MLP(num_classes=num_classes, hidden_size=params['hidden_size']).to(self.device)
+        model = MLP(num_classes=params['num_classes'], hidden_size=params['hidden_size']).to(self.device)
         if freeze_param == 1:
             #загрузили веса
             model.load_state_dict(model_name)
@@ -72,7 +73,7 @@ class MLP(nn.Module):
         train_loader = DataLoader(train_data, batch_size=params['batch_size'], shuffle=True)
         val_loader = DataLoader(val_data, batch_size=params['batch_size'], shuffle=False)
 
-        f1_best = train_final(train_data=train_data,
+        f1_best = train.train_final(train_data=train_data,
                             train_loader=train_loader,
                             valid_loader=val_loader,
                             model = model,
