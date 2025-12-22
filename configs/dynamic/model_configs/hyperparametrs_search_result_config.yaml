@@ -1,0 +1,7 @@
+batch_size: 16
+lr: 0.0005
+weight_decay: 0.0014
+hidden_size: 448
+resolution: 16
+num_classes: 5
+model: MLP16

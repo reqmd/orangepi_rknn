@@ -1,0 +1,92 @@
+Base:
+  batch_size:
+  - int
+  - low: 4
+    high: 16
+    step: 4
+Models:
+  SP:
+    lr:
+    - float
+    - low: 0.0001
+      high: 0.001
+      step: 0.0001
+    weight_decay:
+    - float
+    - low: 0.0001
+      high: 0.01
+      step: 0.0001
+  MLP16:
+    lr:
+    - float
+    - low: 0.0001
+      high: 0.001
+      step: 0.0001
+    weight_decay:
+    - float
+    - low: 0.0001
+      high: 0.01
+      step: 0.0001
+    hidden_size:
+    - int
+    - low: 64
+      high: 512
+      step: 64
+  MLP32:
+    lr:
+    - float
+    - low: 0.0001
+      high: 0.001
+      step: 0.0001
+    weight_decay:
+    - float
+    - low: 0.0001
+      high: 0.01
+      step: 0.0001
+    hidden_size:
+    - int
+    - low: 128
+      high: 1024
+      step: 128
+  CNN:
+    lr:
+    - float
+    - low: 0.0001
+      high: 0.001
+      step: 0.0001
+    weight_decay:
+    - float
+    - low: 0.0001
+      high: 0.01
+      step: 0.0001
+    hidden_size:
+    - int
+    - low: 128
+      high: 1024
+      step: 128
+    dropout_p:
+    - float
+    - low: 0
+      high: 1
+      step: 0.125
+    n_filters:
+    - int
+    - low: 4
+      high: 64
+      step: 4
+  MobileNet:
+    lr:
+    - float
+    - low: 0.00001
+      high: 0.0001
+      step: 0.00001
+    weight_decay:
+    - float
+    - low: 0.0001
+      high: 0.01
+      step: 0.0001
+    alpha:
+    - float
+    - low: 0.25
+      high: 1
+      step: 0.25

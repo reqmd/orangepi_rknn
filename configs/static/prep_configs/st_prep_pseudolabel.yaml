@@ -1,0 +1,4 @@
+device: cuda
+n_iter: 3
+n_epochs: 5
+threshhold: 0.95

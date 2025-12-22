@@ -1,7 +1,11 @@
 .conda/
 .vscode/
+.ipynb_checkpoints/
 __pycache__/
-models/__pycache__/
+/data/
 best_model.pth
 config.yaml
 pseudo_model.pth
+notebook.ipynb
+Функционал из main
+*.pth

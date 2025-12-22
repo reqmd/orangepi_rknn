@@ -1,0 +1,10 @@
+models:
+- MLP16
+- MLP32
+- CNN
+- MobileNet
+resolutions:
+- 16
+- 32
+- 64
+- 224

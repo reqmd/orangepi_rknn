@@ -6,13 +6,13 @@ import torch.nn.functional as F
 from torchvision import transforms
 from sklearn.metrics import f1_score
 
-from utils.dataset import LabeledDataset, solve_imbalance, TrainTestSubset
+from data.dataset import LabeledDataset, solve_imbalance, TrainTestSubset
 from utils import funcs
 
 
 def train_objective(
     train_loader, 
-    valid_loader,  
+    val_loader,  
     model, 
     optim, 
     loss_fn, 
@@ -44,7 +44,7 @@ def train_objective(
         y_trues = []
         patience = 3
         
-        for X, y in valid_loader:
+        for X, y in val_loader:
             X = X.to(device)
             y = y.to(device)
             y_trues.extend(y.cpu().numpy())
@@ -99,7 +99,7 @@ def train_final(
         for X, y in train_loader:
             X = X.to(params['device'])
             y = y.to(params['device'])
-            y_pred = model(X)
+            y_pred = model(X).to(params['device'])
             optim.zero_grad()
             loss = loss_fn(y_pred, y)
             loss.backward()
@@ -117,7 +117,7 @@ def train_final(
             X = X.to(params['device'])
             y = y.to(params['device'])
             y_trues.extend(y.cpu().numpy())
-            y_pred = model(X)
+            y_pred =  model(X).to(params['device'])
             val_loss = loss_fn(y_pred, y)
             test_loss.append(val_loss.cpu().detach().numpy())
             y_pred = torch.argmax(y_pred, dim=1)
@@ -254,7 +254,7 @@ def pseudo_label(model,
             for X, y in combined_loader:
                 X = X.to(params['device'])
                 y = y.to(params['device'])
-                y_pred = model(X)
+                y_pred = model(X).to(params['device'])
                 optim.zero_grad()
                 loss = loss_fn(y_pred, y)
                 loss.backward()
@@ -275,7 +275,7 @@ def pseudo_label(model,
                 X = X.to(params['device'])
                 y = y.to(params['device'])
                 y_trues.extend(y.cpu().numpy())
-                y_pred = model(X)
+                y_pred = model(X).to(params['device'])
                 val_loss = loss_fn(y_pred, y)
                 test_loss.append(val_loss.cpu().detach().numpy())
                 y_pred = torch.argmax(y_pred, dim=1)

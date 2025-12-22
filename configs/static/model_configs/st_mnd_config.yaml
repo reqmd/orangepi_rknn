@@ -1,0 +1,12 @@
+model:
+- SP
+- MLP16
+- MLP32
+- CNN
+- MobileNet
+size:
+- 8
+- 16
+- 32
+- 64
+- 224

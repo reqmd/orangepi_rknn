@@ -1,0 +1,3 @@
+device: cuda
+epochs: 25
+n_trials: 10
