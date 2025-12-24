@@ -13,7 +13,7 @@ def __train__(data,
               use_for_hyperparams = False):
     prep_params = load_yaml('configs/static/prep_configs/st_prep_config.yaml')
     model_params = load_yaml('configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml')
-    model = load_model(params=model_params).to('cuda')
+    model = load_model(params=model_params).to('cpu')
     all_params = load_yaml('configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml')
 
     if isinstance(data, LabeledDataset):
@@ -25,6 +25,7 @@ def __train__(data,
     loss_fn = nn.CrossEntropyLoss()
     optim = torch.optim.Adam(params=model.parameters(), lr = all_params['lr'], weight_decay=all_params['weight_decay'])
     device = prep_params['device']
+    print(device)
     epochs = prep_params['epochs']
     estop = EarlyStopping(min_delta=0.01)
 

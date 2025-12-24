@@ -8,6 +8,8 @@ from src.data.funcs import create_annot
 from testing.pipeline.test import __test__
 from testing.rknn.rknn_test import __rknn__, timer
 
+from torchvision import transforms
+
 params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml', 
                     'configs/static/prep_configs/st_prep_config.yaml', 
                     'configs/static/prep_configs/st_prep_hyperparams_config.yaml']
@@ -21,13 +23,14 @@ test_root = './data/data/yapsh_test'
 txt_root = './data/annotations/yapsh_test/dataset.txt'
 
 data = LabeledDataset(root)
-test_data = LabeledDataset(test_root, test=True)
+transform = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
+test_data = LabeledDataset(test_root, test=True, transform=transform)
 
 create_annot(data=test_data, txt_root=txt_root)
-timestamp_train_start = timer()
-__train__(data=data)
-timestamp_train_end = timer()
-print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
+#timestamp_train_start = timer()
+#__train__(data=data)
+#timestamp_train_end = timer()
+#print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
 __rknn__(params_root=params_root, model_name='standart_model.pth', annot_root=txt_root, data=test_data)
 #__test__(test_root=test_root, model_name='standart_model.pth')
 ######################################################

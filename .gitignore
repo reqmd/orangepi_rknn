@@ -8,4 +8,8 @@ pseudo_model.pth
 notebook.ipynb
 Функционал из main
 *.pth
+*.swp
+*.pt
+*.onnx
+*.rknn
 .venv
