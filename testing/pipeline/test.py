@@ -1,14 +1,14 @@
 import numpy as np
 from sklearn.metrics import f1_score
 import torch
-import torch.nn as nn
+from sklearn.metrics import classification_report
 
 from src.utils.save_load import load_model
 from src.utils.config_funcs import load_yaml
 from src.data.funcs import dataset_into_loader, train_test_split
 from src.data.dataset import LabeledDataset
 
-def __test__(test_root, model_name, config_root = 'configs\dynamic\model_configs\hyperparametrs_search_result_config.yaml'):
+def __test__(test_root, model_name, config_root = 'configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml'):
     data = LabeledDataset(test_root)
     params = load_yaml(config_root)
     _, val_data = train_test_split(data, resolution=params['resolution'], test_size=0.5)
@@ -37,5 +37,7 @@ def test_loop(val_loader, model_name, config_root):
         test_acc.append(acc.cpu().detach().numpy())
 
     f1 = f1_score(y_trues, y_preds, average='weighted')
+    print(classification_report(y_trues, y_preds))
     return f1, np.round(np.mean(test_acc) * 100, 2)
+    
 

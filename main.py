@@ -1,22 +1,33 @@
 #from logs.logger import logger_info
 from src.training.search_hyperparams import __hyperparams__
 from src.training.pseudo_labeling import __pseudo_labeling__
-from testing.pipeline.test import __test__
+from src.training.train import __train__
 from src.utils.device_func import device_config
+from src.data.dataset import LabeledDataset
+from src.data.funcs import create_annot
+from testing.pipeline.test import __test__
+from testing.rknn.rknn_test import __rknn__
 
 params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml', 
                     'configs/static/prep_configs/st_prep_config.yaml', 
                     'configs/static/prep_configs/st_prep_hyperparams_config.yaml']
+params_root = 'configs/static/prep_configs/st_prep_hyperparams_config.yaml'
 device_config(params_roots=params_to_modify)
 
+####################################################
+# Для пшеницы и ячменя Linux
+root = './data/data/yapsh'
+test_root = './data/data/yapsh_test'
+txt_root = './data/annotations/yapsh_test/dataset.txt'
 
+data = LabeledDataset(root)
+test_data = LabeledDataset(test_root, test=True)
 
-
-
-
-
-
-
+create_annot(data=test_data, txt_root=txt_root)
+__train__(data=data)
+__rknn__(params_root=params_root, model_name='standart_model.pth', annot_root=txt_root, data=test_data)
+#__test__(test_root=test_root, model_name='standart_model.pth')
+######################################################
 
 ##########################################################
 # #Для риса
@@ -35,7 +46,7 @@ device_config(params_roots=params_to_modify)
 ##############################################################
 
 ####################################################
-# Для пшеницы и ячменя
+# Для пшеницы и ячменя Windows
 # root = r'C:\Users\Куликов\Desktop\yapsh'
 # test_root = r'C:\Users\Куликов\Desktop\yapsh_test'
 # data = LabeledDataset(root)

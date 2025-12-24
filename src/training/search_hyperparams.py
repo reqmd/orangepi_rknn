@@ -16,7 +16,8 @@ from src.utils.config_funcs import load_yaml, save_yaml
 from src.utils.early_stopping import EarlyStopping
 from src.training.train import __train__
 
-def __hyperparams__(data, num_classes, f1_threshhold = 0.98, test_size = 0.5):
+def __hyperparams__(data,  f1_threshhold = 0.98, test_size = 0.5):
+    num_classes = len(data.classes)
     prep_params = load_yaml('configs/static/prep_configs/st_prep_hyperparams_config.yaml')
     model_params = load_yaml('configs/dynamic/model_configs/mnd_config.yaml')
 
@@ -108,7 +109,8 @@ def train_objective(train_loader: DataLoader, val_loader: DataLoader,  model, op
             print(f'Эпоха: {epoch+1}')
             break
         
-    print(f'F1: {f1_score(y_trues, y_preds, average='weighted'):.6f}, Test Loss {np.mean(test_loss)}\n')
+    f1_sc = f1_score(y_trues, y_preds, average='weighted')
+    print(f'F1: {f1_sc:.6f}, Test Loss {np.mean(test_loss)}\n')
     return total_loss[-1]
 
 def trial_config(trial: optuna.Trial, param: dict):

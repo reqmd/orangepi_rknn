@@ -36,4 +36,9 @@ def dataset_into_loader(data, batch_size):
         val_sampler = solve_imbalance(val_data)
         val_loader = DataLoader(val_data, sampler=val_sampler, batch_size=batch_size)
         return train_loader, val_loader
+    
+def create_annot(data, txt_root):
+    with open(txt_root, 'w') as f: 
+        for st in data.root_images:
+            f.write(f'{st}\n')
 
