@@ -24,10 +24,9 @@ def export_pytorch_model(model_name):
 def softmax(x):
     return np.exp(x)/sum(np.exp(x))
 
-def __rknn__(model_name, dataset_root, allow_root, data, mode=None):
+def __rknn__(model_name, dataset_root, annot_root, data, mode=None):
     #mode == None -> просто вывод предсказанных данных
-    #model == 'images' -> сохраняем фото и метки с уверенностью в классе 
-    #model == 'annotations' -> сохраняем метки с уверенностью в классе
+    #mode == 'annot' -> сохраняем метки с уверенностью в классe
     np.set_printoptions(suppress=True, precision=5)
     #Загружаем модель и трассируем её
     print('НАЧАЛО ИНФЕРЕНСА')
@@ -81,9 +80,9 @@ def __rknn__(model_name, dataset_root, allow_root, data, mode=None):
     y_trues = []
 
     if mode != None:
-        with open(allow_root, 'a') as file:
-            file.write('Начало записи аннотаций к разметке')
-            file.write('Имя файла | Вероятности | Предсказанный класс')
+        with open(annot_root, 'w') as file:
+            file.write('Начало записи аннотаций к разметке\n')
+            file.write('Имя файла | Вероятности | Предсказанный класс\n')
             for idx in range(len(data)):
                 X, y = data[idx]
                 timestamp_start = timer()
@@ -98,7 +97,7 @@ def __rknn__(model_name, dataset_root, allow_root, data, mode=None):
                 time_loop.append(np.round(timestamp_end-timestamp_start, 4))
                 y_preds.append(y_pred)
                 y_trues.append(y)
-                file.write(f'{data.image_name}, [{probs[0]}, {probs[1]}], {y_pred}')
+                file.write(f'{data.image_name}, [{probs[0]:.4f}, {probs[1]:.4f}], {y_pred}\n')
 
     else:
         for X, y in loader:

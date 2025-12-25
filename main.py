@@ -40,7 +40,7 @@ test_data = LabeledDataset(test_root, test=True, transform=transform)
 # timestamp_train_end = timer()
 # print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
 create_annot(data=test_data, txt_root=dataset_root)
-__rknn__(model_name='standart_model.pth', annot_root=annot_root, dataset_root=dataset_root, data=test_data)
+__rknn__(model_name='standart_model.pth', annot_root=annot_root, dataset_root=dataset_root, data=test_data, mode = 'images')
 #__test__(test_root=test_root, model_name='standart_model.pth')
 ######################################################
 
