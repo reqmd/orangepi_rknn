@@ -24,7 +24,10 @@ def export_pytorch_model(model_name):
 def softmax(x):
     return np.exp(x)/sum(np.exp(x))
 
-def __rknn__(params_root, model_name, annot_root, data):
+def __rknn__(model_name, dataset_root, allow_root, data, mode=None):
+    #mode == None -> просто вывод предсказанных данных
+    #model == 'images' -> сохраняем фото и метки с уверенностью в классе 
+    #model == 'annotations' -> сохраняем метки с уверенностью в классе
     np.set_printoptions(suppress=True, precision=5)
     #Загружаем модель и трассируем её
     print('НАЧАЛО ИНФЕРЕНСА')
@@ -50,7 +53,7 @@ def __rknn__(params_root, model_name, annot_root, data):
     print('OK')
 
     print('--> Building model')
-    ret = rknn.build(do_quantization=False, dataset=annot_root)
+    ret = rknn.build(do_quantization=False, dataset=dataset_root)
     if ret != 0:
         print('Build model failed!')
         exit(ret)
@@ -77,23 +80,43 @@ def __rknn__(params_root, model_name, annot_root, data):
     y_preds = []
     y_trues = []
 
-    for X, y in loader:
-        timestamp_start = timer()
-        X_array = np.array(X)
-        y_raw = rknn.inference(inputs=[X_array], data_format=['nchw'])
-        timestamp_end = timer()
-        probs = softmax(y_raw[0][0])
-        y_pred = np.argmax(probs)
-        print(f"Выход модели: {y_raw}, softmax: {probs}, class: {y_pred}")
-        print(f"Реальные данные: {y}")
-        time_loop.append(np.round(timestamp_end-timestamp_start, 4))
-        y_preds.append(y_pred)
-        y_trues.append(y)
+    if mode != None:
+        with open(allow_root, 'a') as file:
+            file.write('Начало записи аннотаций к разметке')
+            file.write('Имя файла | Вероятности | Предсказанный класс')
+            for idx in range(len(data)):
+                X, y = data[idx]
+                timestamp_start = timer()
+                X_array = np.array(X)
+                X_array = np.expand_dims(X_array, 0)
+                y_raw = rknn.inference(inputs=[X_array], data_format=['nchw'])
+                timestamp_end = timer()
+                probs = softmax(y_raw[0][0])
+                y_pred = np.argmax(probs)
+                print(f"Выход модели: {y_raw}, softmax: {probs}, class: {y_pred}")
+                print(f"Реальные данные: {y}")
+                time_loop.append(np.round(timestamp_end-timestamp_start, 4))
+                y_preds.append(y_pred)
+                y_trues.append(y)
+                file.write(f'{data.image_name}, [{probs[0]}, {probs[1]}], {y_pred}')
+
+    else:
+        for X, y in loader:
+            timestamp_start = timer()
+            X_array = np.array(X)
+            y_raw = rknn.inference(inputs=[X_array], data_format=['nchw'])
+            timestamp_end = timer()
+            probs = softmax(y_raw[0][0])
+            y_pred = np.argmax(probs)
+            print(f"Выход модели: {y_raw}, softmax: {probs}, class: {y_pred}")
+            print(f"Реальные данные: {y}")
+            time_loop.append(np.round(timestamp_end-timestamp_start, 4))
+            y_preds.append(y_pred)
+            y_trues.append(y)
     timestamp_end_all = timer()
     print(classification_report(y_trues, y_preds))
     print(f'Обработка изображений заняла {np.sum(time_loop)} секунд, на обработку одного изображения в среднем уходит: {np.mean(time_loop):.4f}')
     print(f'Полный цикл всех действий занял {timestamp_end_all - timestamp_start_all:.4f} секунд')
-
 
 def timer():
     return time.time()

@@ -12,6 +12,7 @@ class LabeledDataset(Dataset):
         self.images = []
         self.labels = []
         self.root_images = []
+        self.image_name = ''
         for class_name in self.classes:
             self.class_root = os.path.join(self.root, class_name)
             for image_name in os.listdir(self.class_root):
@@ -26,6 +27,7 @@ class LabeledDataset(Dataset):
     def __getitem__(self, idx):
         label = self.labels[idx]
         image = Image.open(os.path.join(self.root, self.classes[label], self.images[idx])).convert('RGB')
+        self.image_name = self.images[idx]
         label = torch.tensor(self.labels[idx], dtype = torch.int64)
 
         if self.transfrom != None:

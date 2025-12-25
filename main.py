@@ -22,11 +22,14 @@ ftp_root = './ftp'
 dst_root = './data/data/from_ftp'
 replace_new_ftp_data(ftp_root, dst_root)
 
+
+
 ####################################################
 # Для пшеницы и ячменя Linux
 root = './data/data/yapsh'
 test_root = './data/data/yapsh_test'
-txt_root = './data/annotations/yapsh_test/dataset.txt'
+dataset_root = './data/annotations/yapsh_test/dataset.txt'
+annot_root = './data/annotations/from_ftp/annot.txt'
 
 data = LabeledDataset(root)
 transform = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
@@ -36,10 +39,12 @@ test_data = LabeledDataset(test_root, test=True, transform=transform)
 # __train__(data=data)
 # timestamp_train_end = timer()
 # print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
-create_annot(data=test_data, txt_root=txt_root)
-__rknn__(params_root=params_root, model_name='standart_model.pth', annot_root=txt_root, data=test_data)
+create_annot(data=test_data, txt_root=dataset_root)
+__rknn__(model_name='standart_model.pth', annot_root=annot_root, dataset_root=dataset_root, data=test_data)
 #__test__(test_root=test_root, model_name='standart_model.pth')
 ######################################################
+
+
 
 ##########################################################
 # #Для риса
