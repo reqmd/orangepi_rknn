@@ -1,10 +1,12 @@
+import numpy as np
+
 #from logs.logger import logger_info
 from src.training.search_hyperparams import __hyperparams__
 from src.training.pseudo_labeling import __pseudo_labeling__
 from src.training.train import __train__
 from src.utils.device_func import device_config
 from src.data.dataset import LabeledDataset
-from src.data.funcs import create_annot
+from src.data.funcs import create_annot, replace_new_ftp_data
 from testing.pipeline.test import __test__
 from testing.rknn.rknn_test import __rknn__, timer
 
@@ -16,6 +18,10 @@ params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml',
 params_root = 'configs/static/prep_configs/st_prep_hyperparams_config.yaml'
 device_config(params_roots=params_to_modify)
 
+ftp_root = './ftp'
+dst_root = './data/from_ftp'
+replace_new_ftp_data(ftp_root, dst_root)
+
 ####################################################
 # Для пшеницы и ячменя Linux
 root = './data/data/yapsh'
@@ -26,13 +32,13 @@ data = LabeledDataset(root)
 transform = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
 test_data = LabeledDataset(test_root, test=True, transform=transform)
 
+# timestamp_train_start = timer()
+# __train__(data=data)
+# timestamp_train_end = timer()
+# print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
 create_annot(data=test_data, txt_root=txt_root)
-timestamp_train_start = timer()
-__train__(data=data)
-timestamp_train_end = timer()
-print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
 __rknn__(params_root=params_root, model_name='standart_model.pth', annot_root=txt_root, data=test_data)
-#__test__(test_root=test_root, model_name='standart_model.pth')
+__test__(test_root=test_root, model_name='standart_model.pth')
 ######################################################
 
 ##########################################################

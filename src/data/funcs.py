@@ -1,5 +1,7 @@
 from torch.utils.data import WeightedRandomSampler, DataLoader
 import numpy as np
+import shutil
+import os
 
 from .transforms import return_transforms
 from .dataset import TrainTestSubset, LabeledDataset
@@ -41,4 +43,16 @@ def create_annot(data, txt_root):
     with open(txt_root, 'w') as f: 
         for st in data.root_images:
             f.write(f'{st}\n')
+
+def replace_new_ftp_data(src_root, dst_root):
+    all_files = os.listdir(src_root)
+    c = 0
+    for f in all_files:
+        _, ext = os.path.splitext(f)
+        if ext == '.bmp':
+             src_path = os.path.join(src_root, f)
+             dst_path = os.path.join(dst_root, f)
+             shutil.move(src_path, dst_path)
+             c+=1
+    print(f'Успешно перемещено {c} файлов')
 
