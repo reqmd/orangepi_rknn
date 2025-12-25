@@ -19,7 +19,7 @@ params_root = 'configs/static/prep_configs/st_prep_hyperparams_config.yaml'
 device_config(params_roots=params_to_modify)
 
 ftp_root = './ftp'
-dst_root = './data/from_ftp'
+dst_root = './data/data/from_ftp'
 replace_new_ftp_data(ftp_root, dst_root)
 
 ####################################################
@@ -38,7 +38,7 @@ test_data = LabeledDataset(test_root, test=True, transform=transform)
 # print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
 create_annot(data=test_data, txt_root=txt_root)
 __rknn__(params_root=params_root, model_name='standart_model.pth', annot_root=txt_root, data=test_data)
-__test__(test_root=test_root, model_name='standart_model.pth')
+#__test__(test_root=test_root, model_name='standart_model.pth')
 ######################################################
 
 ##########################################################

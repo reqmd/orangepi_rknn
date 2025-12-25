@@ -25,6 +25,7 @@ def softmax(x):
     return np.exp(x)/sum(np.exp(x))
 
 def __rknn__(params_root, model_name, annot_root, data):
+    np.set_printoptions(suppress=True, precision=5)
     #Загружаем модель и трассируем её
     print('НАЧАЛО ИНФЕРЕНСА')
     all_params_root = './configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml'
@@ -79,11 +80,12 @@ def __rknn__(params_root, model_name, annot_root, data):
     for X, y in loader:
         timestamp_start = timer()
         X_array = np.array(X)
-        output = rknn.inference(inputs=[X_array], data_format=['nchw'])
-        #print(f"Выход модели: {output}, softmax: {probs}")
-        #print(f"Реальные данные: {y}")
+        y_raw = rknn.inference(inputs=[X_array], data_format=['nchw'])
         timestamp_end = timer()
-        y_pred = np.argmax(output)
+        probs = softmax(y_raw[0][0])
+        y_pred = np.argmax(probs)
+        print(f"Выход модели: {y_raw}, softmax: {probs}, class: {y_pred}")
+        print(f"Реальные данные: {y}")
         time_loop.append(np.round(timestamp_end-timestamp_start, 4))
         y_preds.append(y_pred)
         y_trues.append(y)
