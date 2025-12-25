@@ -13,3 +13,4 @@ notebook.ipynb
 *.onnx
 *.rknn
 .venv
+*.save
