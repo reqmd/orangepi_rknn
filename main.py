@@ -6,7 +6,7 @@ from src.training.pseudo_labeling import __pseudo_labeling__
 from src.training.train import __train__
 from src.utils.device_func import device_config
 from src.data.dataset import LabeledDataset
-from src.data.funcs import create_annot, replace_new_ftp_data
+from src.data.funcs import create_annot, replace_new_ftp_data, replace_annot_to_ftp
 from src.utils.run_bash import run_bash
 from testing.pipeline.test import __test__
 from testing.rknn.rknn_test import __rknn__, timer
@@ -19,14 +19,12 @@ params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml',
 params_root = 'configs/static/prep_configs/st_prep_hyperparams_config.yaml'
 device_config(params_roots=params_to_modify)
 
-ftp_sh = './ftp/download_expect.sh'
-run_bash(ftp_sh)
+#ftp_sh = './ftp/download_expect.sh'
+#run_bash(ftp_sh)
 
 ftp_root = './ftp'
 dst_root = './data/data/from_ftp'
 replace_new_ftp_data(ftp_root, dst_root)
-
-
 
 ####################################################
 # Для пшеницы и ячменя Linux
@@ -34,6 +32,7 @@ root = './data/data/yapsh'
 test_root = './data/data/from_ftp'
 dataset_root = './data/annotations/from_ftp/dataset.txt'
 annot_root = './data/annotations/from_ftp/annot.txt'
+annot_root_without_file = './data/annotations/from_ftp'
 
 data = LabeledDataset(root)
 transform = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
@@ -45,6 +44,10 @@ test_data = LabeledDataset(test_root, test=True, transform=transform)
 # print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
 create_annot(data=test_data, txt_root=dataset_root)
 __rknn__(model_name='standart_model.pth', annot_root=annot_root, dataset_root=dataset_root, data=test_data, mode = 'images')
+replace_annot_to_ftp(src_root=annot_root_without_file, dst_root=ftp_root)
+
+
+
 #__test__(test_root=test_root, model_name='standart_model.pth')
 ######################################################
 

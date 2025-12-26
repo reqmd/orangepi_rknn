@@ -59,3 +59,7 @@ def replace_new_ftp_data(src_root, dst_root):
         return 1
     print(f'Успешно перемещено {c} файлов')
 
+def replace_annot_to_ftp(src_root, dst_root, annot_name = 'annot.txt'):
+    src_path = os.path.join(src_root, annot_name)
+    dst_path = os.path.join(dst_root, annot_name)
+    shutil.move(src_path, dst_path)

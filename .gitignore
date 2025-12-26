@@ -14,3 +14,4 @@ notebook.ipynb
 *.rknn
 .venv
 *.save
+data/raw
