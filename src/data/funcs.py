@@ -54,5 +54,8 @@ def replace_new_ftp_data(src_root, dst_root):
              dst_path = os.path.join(dst_root, f)
              shutil.move(src_path, dst_path)
              c+=1
+    if c == 0:
+        print('ФАЙЛЫ НЕ БЫЛИ ПОЛУЧЕНЫ ИЗ ПАПКИ FTP')
+        return 1
     print(f'Успешно перемещено {c} файлов')
 

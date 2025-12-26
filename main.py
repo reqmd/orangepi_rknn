@@ -7,6 +7,7 @@ from src.training.train import __train__
 from src.utils.device_func import device_config
 from src.data.dataset import LabeledDataset
 from src.data.funcs import create_annot, replace_new_ftp_data
+from src.utils.run_bash import run_bash
 from testing.pipeline.test import __test__
 from testing.rknn.rknn_test import __rknn__, timer
 
@@ -18,6 +19,9 @@ params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml',
 params_root = 'configs/static/prep_configs/st_prep_hyperparams_config.yaml'
 device_config(params_roots=params_to_modify)
 
+ftp_sh = './ftp/download_expect.sh'
+run_bash(ftp_sh)
+
 ftp_root = './ftp'
 dst_root = './data/data/from_ftp'
 replace_new_ftp_data(ftp_root, dst_root)
@@ -27,8 +31,8 @@ replace_new_ftp_data(ftp_root, dst_root)
 ####################################################
 # Для пшеницы и ячменя Linux
 root = './data/data/yapsh'
-test_root = './data/data/yapsh_test'
-dataset_root = './data/annotations/yapsh_test/dataset.txt'
+test_root = './data/data/from_ftp'
+dataset_root = './data/annotations/from_ftp/dataset.txt'
 annot_root = './data/annotations/from_ftp/annot.txt'
 
 data = LabeledDataset(root)
