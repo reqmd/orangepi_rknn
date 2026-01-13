@@ -1,6 +1,3 @@
-import torch
-import torch.nn as nn
-
 class EarlyStopping():
     def __init__(self, min_delta = 0.001, patience = 5):
         self.min_delta = min_delta

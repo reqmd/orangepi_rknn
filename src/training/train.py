@@ -13,7 +13,6 @@ def __train__(data,
               use_for_hyperparams = False):
     prep_params = load_yaml('configs/static/prep_configs/st_prep_config.yaml')
     model_params = load_yaml('configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml')
-    model = load_model(params=model_params).to('cpu')
     all_params = load_yaml('configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml')
 
     if isinstance(data, LabeledDataset):
@@ -22,13 +21,13 @@ def __train__(data,
         train_data, val_data = data #если дали разделенные датасеты в списке
 
     train_loader, val_loader = dataset_into_loader(data=[train_data, val_data], batch_size=all_params['batch_size'])
-    loss_fn = nn.CrossEntropyLoss()
-    optim = torch.optim.Adam(params=model.parameters(), lr = all_params['lr'], weight_decay=all_params['weight_decay'])
     device = prep_params['device']
-    print(device)
     epochs = prep_params['epochs']
     estop = EarlyStopping(min_delta=0.01)
-
+    model = load_model(params=model_params).to(device)
+    loss_fn = nn.CrossEntropyLoss()
+    optim = torch.optim.Adam(params=model.parameters(), lr = all_params['lr'], weight_decay=all_params['weight_decay'])
+    
     total_loss = []
     f1_best = 0
 
@@ -39,7 +38,7 @@ def __train__(data,
         for X, y in train_loader:
             X = X.to(device)
             y = y.to(device)
-            y_pred = model(X).to(device)
+            y_pred = model(X)
             optim.zero_grad()
             loss = loss_fn(y_pred, y)
             loss.backward()

@@ -1,5 +1,3 @@
-import numpy as np
-
 #from logs.logger import logger_info
 from src.training.search_hyperparams import __hyperparams__
 from src.training.pseudo_labeling import __pseudo_labeling__
@@ -9,22 +7,22 @@ from src.data.dataset import LabeledDataset
 from src.data.funcs import create_annot, replace_new_ftp_data, replace_annot_to_ftp
 from src.utils.run_bash import run_bash
 from testing.pipeline.test import __test__
-from testing.rknn.rknn_test import __rknn__, timer
+#from testing.rknn.rknn_test import __rknn__, timer
 
 from torchvision import transforms
 
-params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml', 
-                    'configs/static/prep_configs/st_prep_config.yaml', 
-                    'configs/static/prep_configs/st_prep_hyperparams_config.yaml']
-params_root = 'configs/static/prep_configs/st_prep_hyperparams_config.yaml'
-device_config(params_roots=params_to_modify)
+params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml',       #YAMl файл отвечающий за параметры псевдоразметки
+                    'configs/static/prep_configs/st_prep_config.yaml',            #YAMl файл отвечающий за кол-во эпох и устройство, на котором будет проводиться обучение
+                    'configs/static/prep_configs/st_prep_hyperparams_config.yaml' #YAMl файл отвечающий за параметры подбора гиперпараметров
+                    ]
+device_config(params_roots=params_to_modify) #Изменяет параметр device в зависимости от устройства
 
-#ftp_sh = './ftp/download_expect.sh'
+#ftp_sh = './ftp/download.sh'      #путь к скрипту с загрузкой файлов с корня FTP
+#ftp_root = './ftp'                #путь с которого будут переноситься данные полученные от FTP 
+#dst_root = './data/data/from_ftp' #путь куда будут переноситься данные из ftp_root
+
 #run_bash(ftp_sh)
-
-ftp_root = './ftp'
-dst_root = './data/data/from_ftp'
-replace_new_ftp_data(ftp_root, dst_root)
+#replace_new_ftp_data(ftp_root, dst_root)
 
 ####################################################
 # Для пшеницы и ячменя Linux
@@ -34,21 +32,23 @@ dataset_root = './data/annotations/from_ftp/dataset.txt'
 annot_root = './data/annotations/from_ftp/annot.txt'
 annot_root_without_file = './data/annotations/from_ftp'
 
+# Цикл обучения
 data = LabeledDataset(root)
+#timestamp_train_start = timer()
+#__train__(data=data)
+#timestamp_train_end = timer()
+#print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
+
+# Цикл тестирования
 transform = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
 test_data = LabeledDataset(test_root, test=True, transform=transform)
-
-# timestamp_train_start = timer()
-# __train__(data=data)
-# timestamp_train_end = timer()
-# print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
+__test__(test_root=test_root, model_name='standart_model.pth')
 create_annot(data=test_data, txt_root=dataset_root)
-__rknn__(model_name='standart_model.pth', annot_root=annot_root, dataset_root=dataset_root, data=test_data, mode = 'images')
-replace_annot_to_ftp(src_root=annot_root_without_file, dst_root=ftp_root)
 
+# Цикл инференса на устройстве
+#__rknn__(model_name='standart_model.pth', annot_root=annot_root, dataset_root=dataset_root, data=test_data, mode = 'images')
+#replace_annot_to_ftp(src_root=annot_root_without_file, dst_root=ftp_root)
 
-
-#__test__(test_root=test_root, model_name='standart_model.pth')
 ######################################################
 
 
