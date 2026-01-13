@@ -14,5 +14,6 @@ notebook.ipynb
 *.rknn
 .venv
 *.save
-/data
+images/
+annotations/
 *.txt

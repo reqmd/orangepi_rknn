@@ -17,11 +17,10 @@ params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml',     
                     ]
 device_config(params_roots=params_to_modify) #Изменяет параметр device в зависимости от устройства
 
-#ftp_sh = './ftp/download.sh'      #путь к скрипту с загрузкой файлов с корня FTP
-#ftp_root = './ftp'                #путь с которого будут переноситься данные полученные от FTP 
-#dst_root = './data/data/from_ftp' #путь куда будут переноситься данные из ftp_root
+ftp_sh = './ftp/download.sh'      #путь к скрипту с загрузкой файлов с корня FTP
+ftp_root = './ftp'                #путь с которого будут переноситься данные полученные от FTP 
 
-#run_bash(ftp_sh)
+run_bash(ftp_sh)
 #replace_new_ftp_data(ftp_root, dst_root)
 
 ####################################################
@@ -50,8 +49,6 @@ create_annot(data=test_data, txt_root=dataset_root)
 #replace_annot_to_ftp(src_root=annot_root_without_file, dst_root=ftp_root)
 
 ######################################################
-
-
 
 ##########################################################
 # #Для риса
