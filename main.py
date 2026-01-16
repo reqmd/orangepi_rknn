@@ -1,4 +1,6 @@
 #from logs.logger import logger_info
+import os
+
 from src.training.search_hyperparams import __hyperparams__
 from src.training.pseudo_labeling import __pseudo_labeling__
 from src.training.train import __train__
@@ -17,16 +19,12 @@ params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml',     
                     ]
 device_config(params_roots=params_to_modify) #Изменяет параметр device в зависимости от устройства 
 
-#run_bash(ftp_sh)
-#replace_new_ftp_data(ftp_root, dst_root)
+mode = os.environ.get("MODE")
+name_mode = os.environ.get("NAME_MODE")
+
+
 
 ####################################################
-# Для пшеницы и ячменя Linux
-root = './data/data/yapsh'
-test_root = './data/data/from_ftp'
-dataset_root = './data/annotations/from_ftp/dataset.txt'
-annot_root = './data/annotations/from_ftp/annot.txt'
-annot_root_without_file = './data/annotations/from_ftp'
 
 # Цикл обучения
 #data = LabeledDataset(root)
