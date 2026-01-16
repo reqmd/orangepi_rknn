@@ -15,9 +15,9 @@ BUFFER_SIZE = 1024
 
 # Команды, которые можно выполнять
 COMMANDS = {
-    "ftp": "ftp.sh",
-    "test": "test.sh",
-    "train": "train.sh"
+    "ftp": "/home/ubuntu/NAS-project/scripts/ftp.sh",
+    "test": "/home/ubuntu/NAS-project/scripts/test.sh",
+    "train": "/home/ubuntu/NAS-project/scripts/train.sh"
 }
 
 def run_command(cmd):
@@ -26,8 +26,10 @@ def run_command(cmd):
             cmd,
             shell=True,
             capture_output=True,
+            check=True,
+            text=True
         )
-        return result.stdout.strip() or "OK"
+        return result.stdout or "OK"
     except Exception as e:
         return f"ERROR: {e}"
 
@@ -44,7 +46,7 @@ def main():
             response = f"OK: {message} -> {output}"
         else:
             response = "Unknown command"
-        #sock.sendto(response.encode("utf-8"), addr)
+        sock.sendto(response.encode("utf-8"), addr)
 
 if __name__ == "__main__":
     main()
