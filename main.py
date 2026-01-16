@@ -19,11 +19,9 @@ params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml',     
                     ]
 device_config(params_roots=params_to_modify) #Изменяет параметр device в зависимости от устройства 
 
-mode = os.environ.get("MODE")
-name_mode = os.environ.get("NAME_MODE")
-
-
-
+def main(mode, arguments = None):
+    print('Успешный импорт')
+    return mode, arguments
 ####################################################
 
 # Цикл обучения
