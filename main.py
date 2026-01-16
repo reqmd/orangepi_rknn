@@ -15,12 +15,9 @@ params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml',     
                     'configs/static/prep_configs/st_prep_config.yaml',            #YAMl файл отвечающий за кол-во эпох и устройство, на котором будет проводиться обучение
                     'configs/static/prep_configs/st_prep_hyperparams_config.yaml' #YAMl файл отвечающий за параметры подбора гиперпараметров
                     ]
-device_config(params_roots=params_to_modify) #Изменяет параметр device в зависимости от устройства
+device_config(params_roots=params_to_modify) #Изменяет параметр device в зависимости от устройства 
 
-ftp_sh = './ftp/download.sh'      #путь к скрипту с загрузкой файлов с корня FTP
-ftp_root = './ftp'                #путь с которого будут переноситься данные полученные от FTP 
-
-run_bash(ftp_sh)
+#run_bash(ftp_sh)
 #replace_new_ftp_data(ftp_root, dst_root)
 
 ####################################################
@@ -32,17 +29,17 @@ annot_root = './data/annotations/from_ftp/annot.txt'
 annot_root_without_file = './data/annotations/from_ftp'
 
 # Цикл обучения
-data = LabeledDataset(root)
+#data = LabeledDataset(root)
 #timestamp_train_start = timer()
 #__train__(data=data)
 #timestamp_train_end = timer()
 #print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
 
 # Цикл тестирования
-transform = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
-test_data = LabeledDataset(test_root, test=True, transform=transform)
-__test__(test_root=test_root, model_name='standart_model.pth')
-create_annot(data=test_data, txt_root=dataset_root)
+#transform = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
+#test_data = LabeledDataset(test_root, test=True, transform=transform)
+#__test__(test_root=test_root, model_name='standart_model.pth')
+#create_annot(data=test_data, txt_root=dataset_root)
 
 # Цикл инференса на устройстве
 #__rknn__(model_name='standart_model.pth', annot_root=annot_root, dataset_root=dataset_root, data=test_data, mode = 'images')

@@ -17,7 +17,8 @@ BUFFER_SIZE = 1024
 COMMANDS = {
     "ftp": "/home/ubuntu/NAS-project/scripts/ftp.sh",
     "test": "/home/ubuntu/NAS-project/scripts/test.sh",
-    "train": "/home/ubuntu/NAS-project/scripts/train.sh"
+    "train": "/home/ubuntu/NAS-project/scripts/train.sh",
+    "prep": "/home/ubuntu/NAS-project/scripts/prep.sh"
 }
 
 def run_command(cmd):
@@ -46,7 +47,8 @@ def main():
             response = f"OK: {message} -> {output}"
         else:
             response = "Unknown command"
-        sock.sendto(response.encode("utf-8"), addr)
+        #sock.sendto(response.encode("utf-8"), addr)
+        sock.sendto(message.encode("utf-8"), addr)
 
 if __name__ == "__main__":
     main()
