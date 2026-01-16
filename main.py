@@ -1,5 +1,6 @@
 #from logs.logger import logger_info
-import os
+import sys
+from torchvision import transforms
 
 from src.training.search_hyperparams import __hyperparams__
 from src.training.pseudo_labeling import __pseudo_labeling__
@@ -11,9 +12,24 @@ from src.utils.run_bash import run_bash
 from testing.pipeline.test import __test__
 #from testing.rknn.rknn_test import __rknn__, timer
 
-from torchvision import transforms
 
-params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml',       #YAMl файл отвечающий за параметры псевдоразметки
+OS = 'UNKNOWN'
+# Определяем операционную систему
+if sys.platform.startswith("linux") or sys.platform.startswith("darwin"):
+    print("Система: Unix (Linux или macOS)")
+    OS = 'LINUX'
+elif sys.platform.startswith("win"):
+    print("Система: Windows")
+    OS = 'WIN'
+else:
+    print(f"Неизвестная система: {sys.platform}")
+if OS == 'LINUX':
+    params_to_modify = ['/home/ubuntu/NAS-project/configs/static/prep_configs/st_prep_pseudolabel.yaml',       #YAMl файл отвечающий за параметры псевдоразметки
+                    '/home/ubuntu/NAS-project/configs/static/prep_configs/st_prep_config.yaml',            #YAMl файл отвечающий за кол-во эпох и устройство, на котором будет проводиться обучение
+                    '/home/ubuntu/NAS-project/configs/static/prep_configs/st_prep_hyperparams_config.yaml' #YAMl файл отвечающий за параметры подбора гиперпараметров
+                    ]
+elif OS == 'WIN':
+    params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml',       #YAMl файл отвечающий за параметры псевдоразметки
                     'configs/static/prep_configs/st_prep_config.yaml',            #YAMl файл отвечающий за кол-во эпох и устройство, на котором будет проводиться обучение
                     'configs/static/prep_configs/st_prep_hyperparams_config.yaml' #YAMl файл отвечающий за параметры подбора гиперпараметров
                     ]
