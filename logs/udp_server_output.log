@@ -1,0 +1,15 @@
+01-19 10:49:28.980326 test 
+01-19 10:49:28.980644 Добавлен путь: /home/ubuntu/NAS-project 
+01-19 10:49:28.980748 Текущие пути: ['/home/ubuntu/NAS-project/scripts', '/home/ubuntu/NAS-project', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/dist-packages', '/usr/lib/python3/dist-packages', '/home/ubuntu/NAS-project'] 
+01-19 10:49:30.654366 Система: Unix (Linux или macOS) 
+01-19 10:49:30.657695 Успешный импорт 
+01-19 10:49:30.657792 Получены следующие аргументы: 
+01-19 10:49:30.657837 Mode: test 
+01-19 10:49:30.657880 Args: ['ftp', 'len'] 
+01-19 10:51:04.355572 test 
+01-19 10:51:04.355836 Добавлен путь: /home/ubuntu/NAS-project 
+01-19 10:51:04.355912 Текущие пути: ['/home/ubuntu/NAS-project/scripts', '/home/ubuntu/NAS-project', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/dist-packages', '/usr/lib/python3/dist-packages', '/home/ubuntu/NAS-project'] 
+01-19 10:51:04.355973 Успешный импорт 
+01-19 10:51:04.356016 Получены следующие аргументы: 
+01-19 10:51:04.356055 Mode: test 
+01-19 10:51:04.356096 Args: ['ftp', 'len'] 
