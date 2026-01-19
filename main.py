@@ -37,7 +37,10 @@ device_config(params_roots=params_to_modify) #Изменяет параметр 
 
 def main(mode, arguments = None):
     print('Успешный импорт')
-    return mode, arguments
+    print(f'Получены следующие аргументы:')
+    print(f'Mode: {mode}')
+    if arguments != None:
+        print(f'Args: {arguments}')
 ####################################################
 
 # Цикл обучения
