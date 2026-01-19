@@ -1,5 +1,6 @@
 import sys
 import os
+import shutil
 
 from src.utils.device_func import device_config
 from logs.logger import mylogger
@@ -64,7 +65,7 @@ def main(mode, arguments = None):
             if mode_name != None:
                 if not os.path.exists(os.path.join(DATA_PATH, mode_name)):
                     modename_path = os.path.join(DATA_PATH, mode_name)
-                    os.system(f"sudo rm -rf {modename_path}")
+                    shutil.rmtree(modename_path)
                 else:
                     print('Режим не существует')
             else:
