@@ -53,8 +53,7 @@ while True:
         import main
         if mode in COMMANDS:
             if mode != 'ftp':
-                arg1, arg2 = main.main(mode, arguments)
-                print(arg1, arg2)
+                main.main(mode, arguments)
                 output = 'OK'
             else:
                 output = run_command(COMMANDS[mode])
