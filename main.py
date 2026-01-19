@@ -48,25 +48,34 @@ def main(mode, arguments = None):
     print(f'Other Args: {arguments[1:]}')
     match mode:
         case 'new':
-            if not os.path.exists(os.path.join(DATA_PATH, mode_name)):
-                modename_path = os.path.join(DATA_PATH, mode_name)
-                os.mkdir(modename_path)
-                os.mkdir(os.path.join(modename_path, 'images'))
-                os.mkdir(os.path.join(modename_path, 'annotations'))
-                print(f'Режим {mode} был успешно создан')
+            if mode_name != None:
+                if not os.path.exists(os.path.join(DATA_PATH, mode_name)):
+                    modename_path = os.path.join(DATA_PATH, mode_name)
+                    os.mkdir(modename_path)
+                    os.mkdir(os.path.join(modename_path, 'images'))
+                    os.mkdir(os.path.join(modename_path, 'annotations'))
+                    print(f'Режим {mode} был успешно создан')
+                else:
+                    print('Режим уже существует, воспользуйтесь delete и создайте режим заново')
             else:
-                print('Режим уже существует, воспользуйтесь delete и создайте режим заново')
+                print('Название режима отсутствует')
 
         case 'delete':
-            if not os.path.exists(os.path.join(DATA_PATH, mode_name)):
-                modename_path = os.path.join(DATA_PATH, mode_name)
-                os.system(f"sudo rm -rf {modename_path}")
+            if mode_name != None:
+                if not os.path.exists(os.path.join(DATA_PATH, mode_name)):
+                    modename_path = os.path.join(DATA_PATH, mode_name)
+                    os.system(f"sudo rm -rf {modename_path}")
+                else:
+                    print('Режим не существует')
             else:
-                print('Режим не существует')
-                
+                print('Название режима отсутствует')
+
         case 'rotate':
-            with open (LOG_FILE, 'w')as f:
+            with open (LOG_FILE, 'w') as f:
                 print(f'Лог-файл {LOG_FILE} успешно очищен')
+
+        case 'openarch':
+            pass
 
         case _:
             print(f'Получен неизвестный режим {mode}')
