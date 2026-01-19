@@ -37,3 +37,26 @@
 01-19 11:46:32.011120 Режим уже существует, воспользуйтесь delete и создайте режим заново 
 01-19 11:46:32.011160 
  
+01-19 13:52:01.174787 new 
+01-19 13:52:01.175076 Добавлен путь: /home/ubuntu/NAS-project 
+01-19 13:52:01.175174 Текущие пути: ['/home/ubuntu/NAS-project/scripts', '/home/ubuntu/NAS-project', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/dist-packages', '/usr/lib/python3/dist-packages', '/home/ubuntu/NAS-project'] 
+01-19 13:52:02.886306:.3f Система: Unix (Linux или macOS) 
+01-19 13:52:02.889499:.3f Будет использоваться cpu 
+01-19 13:52:02.889612:.3f Успешный импорт 
+01-19 13:52:02.889660:.3f Получены следующие аргументы: 
+01-19 13:52:02.889704:.3f Mode: new 
+01-19 13:52:02.889744:.3f ModeName: test1 
+01-19 13:52:02.889786:.3f Other Args: [] 
+01-19 13:52:02.890002:.3f Режим new был успешно создан 
+01-19 13:52:02.890054:.3f 
+ 
+01-19 13:52:19.287041 delete 
+01-19 13:52:19.287277 Добавлен путь: /home/ubuntu/NAS-project 
+01-19 13:52:19.287350 Текущие пути: ['/home/ubuntu/NAS-project/scripts', '/home/ubuntu/NAS-project', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/dist-packages', '/usr/lib/python3/dist-packages', '/home/ubuntu/NAS-project'] 
+01-19 13:52:19.287447:.3f Успешный импорт 
+01-19 13:52:19.287495:.3f Получены следующие аргументы: 
+01-19 13:52:19.287538:.3f Mode: delete 
+01-19 13:52:19.287578:.3f ModeName: test1 
+01-19 13:52:19.287619:.3f Other Args: [] 
+01-19 13:52:19.288052:.3f 
+ 
