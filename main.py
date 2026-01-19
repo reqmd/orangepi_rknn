@@ -63,7 +63,7 @@ def main(mode, arguments = None):
 
         case 'delete':
             if mode_name != None:
-                if not os.path.exists(os.path.join(DATA_PATH, mode_name)):
+                if os.path.exists(os.path.join(DATA_PATH, mode_name)):
                     modename_path = os.path.join(DATA_PATH, mode_name)
                     shutil.rmtree(modename_path)
                 else:
