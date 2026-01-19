@@ -1,6 +1,7 @@
 import sys
 import os
 import shutil
+from zipfile import Zipfile
 
 from src.utils.device_func import device_config
 from logs.logger import mylogger
@@ -9,6 +10,7 @@ LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
 PRINT_TO_FILE = True
 OS = 'UNKNOWN'
 DATA_PATH = './data'
+TARS_PATH = './tars'
 
 #Логирование принта в файл
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
@@ -47,6 +49,7 @@ def main(mode, arguments = None):
     mode_name = arguments[0]
     print(f'ModeName: {mode_name}')
     print(f'Other Args: {arguments[1:]}')
+    
     match mode:
         case 'new':
             if mode_name != None:
@@ -75,8 +78,21 @@ def main(mode, arguments = None):
             with open (LOG_FILE, 'w') as f:
                 print(f'Лог-файл {LOG_FILE} успешно очищен')
 
-        case 'openarch':
-            pass
+        case 'extract':
+            if mode_name != None:
+                if os.listdir(TARS_PATH) == []:
+                    print('В папке нет архива')
+                else:
+                    archive = os.listdir(TARS_PATH)[0]
+                    mode_path = os.path.join(DATA_PATH, mode_name, 'images')
+                    with Zipfile(archive, 'r') as mz:
+                        mz.extractall(path = mode_path)
+                    if os.listdir(mode_path) != []:
+                        print(f'Архив успешно распакован и находится в {mode_path}')
+                    else:
+                        print('Не удалось распаковать архив')
+            else:
+                print('Название режима отсутствует')
 
         case _:
             print(f'Получен неизвестный режим {mode}')

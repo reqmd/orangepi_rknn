@@ -2,6 +2,7 @@
 .vscode/
 .ipynb_checkpoints/
 /__pycache__/
+__pycache__/
 best_model.pth
 config.yaml
 pseudo_model.pth

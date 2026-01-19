@@ -15,7 +15,8 @@ COMMANDS = {
     "delete": "delete mode",
     "test": "test mode",
     "train": "train mode",
-    "prep": "preprocessing mode"
+    "rotate": "rotate log mode",
+    "exctract":"extract archive mode"
 }
 
 class mylogger(object):
@@ -67,8 +68,6 @@ while True:
     mode, arguments = message[0], message[1:]
     print(mode)
     try:
-        print(f"Добавлен путь: {project_root}")
-        print(f"Текущие пути: {sys.path}")
         import main
         if mode in COMMANDS:
             if mode != 'ftp':
