@@ -1,9 +1,14 @@
 #from logs.logger import logger_info
 import sys
-import torch
-import numpy
 
 from src.utils.device_func import device_config
+from logs.logger import mylogger
+
+#Логирование принта в файл
+LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
+PRINT_TO_FILE = True
+log = mylogger(LOG_FILE, PRINT_TO_FILE)
+print = log.printml
 
 OS = 'UNKNOWN'
 # Определяем операционную систему

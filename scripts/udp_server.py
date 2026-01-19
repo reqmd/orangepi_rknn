@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 import socket
 import subprocess
-import logging
-from contextlib import redirect_stderr, redirect_stdout
 import sys
 from pathlib import Path
-import io
+from datetime import datetime
+
  
 PORT = 4567
 BUFFER_SIZE = 1024
@@ -18,21 +17,23 @@ COMMANDS = {
 }
 
 class mylogger(object):
-	def __init__(self, fn='', tofile=False):
-		self.fn = fn
-		self.tofile = tofile
-		return
-	def printml(self, *args):
-		toprint = ''
-		for v in args:
-			toprint = toprint + str(v) + ' '
-		if self.tofile:
-			f = open(self.fn, 'a')
-			f.write(toprint + "\n")
-			f.close()
-		else: print(toprint)
-		return
-
+    def __init__(self, fn='', tofile=False):
+        self.fn = fn
+        self.tofile = tofile
+        return
+    def printml(self, *args):
+        toprint = ''
+        for v in args:
+            toprint = toprint + str(v) + ' '
+        if self.tofile:
+            f = open(self.fn, 'a')
+            c_time = datetime.now()
+            f_time = c_time.strftime("%m-%d %H:%M:%S.%f")
+            f.write(f_time + toprint + '\n')
+            f.close
+        else: print(toprint)
+        return
+     
 project_root = Path(__file__).resolve().parent.parent
 sys.path.append(str(project_root))
 
@@ -56,7 +57,6 @@ sock.bind(("0.0.0.0", PORT))
 LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
 PRINT_TO_FILE = True
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
-
 print = log.printml
 
 while True:
