@@ -48,7 +48,7 @@ def main(mode, arguments = None):
     print(f'Other Args: {arguments[1:]}')
     match mode:
         case 'new':
-            if not os.path.exists(mode_name):
+            if not os.path.exists(os.path.join(DATA_PATH, mode_name)):
                 modename_path = os.path.join(DATA_PATH, mode_name)
                 os.mkdir(modename_path)
                 os.mkdir(os.path.join(modename_path, 'images'))

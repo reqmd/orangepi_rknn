@@ -11,6 +11,8 @@ BUFFER_SIZE = 1024
 
 COMMANDS = {
     "ftp": "/home/ubuntu/NAS-project/scripts/ftp.sh",
+    "new": "new mode",
+    "delete": "delete mode",
     "test": "test mode",
     "train": "train mode",
     "prep": "preprocessing mode"

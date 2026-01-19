@@ -1,15 +1,39 @@
-01-19 10:49:28.980326 test 
-01-19 10:49:28.980644 Добавлен путь: /home/ubuntu/NAS-project 
-01-19 10:49:28.980748 Текущие пути: ['/home/ubuntu/NAS-project/scripts', '/home/ubuntu/NAS-project', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/dist-packages', '/usr/lib/python3/dist-packages', '/home/ubuntu/NAS-project'] 
-01-19 10:49:30.654366 Система: Unix (Linux или macOS) 
-01-19 10:49:30.657695 Успешный импорт 
-01-19 10:49:30.657792 Получены следующие аргументы: 
-01-19 10:49:30.657837 Mode: test 
-01-19 10:49:30.657880 Args: ['ftp', 'len'] 
-01-19 10:51:04.355572 test 
-01-19 10:51:04.355836 Добавлен путь: /home/ubuntu/NAS-project 
-01-19 10:51:04.355912 Текущие пути: ['/home/ubuntu/NAS-project/scripts', '/home/ubuntu/NAS-project', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/dist-packages', '/usr/lib/python3/dist-packages', '/home/ubuntu/NAS-project'] 
-01-19 10:51:04.355973 Успешный импорт 
-01-19 10:51:04.356016 Получены следующие аргументы: 
-01-19 10:51:04.356055 Mode: test 
-01-19 10:51:04.356096 Args: ['ftp', 'len'] 
+01-19 11:40:15.978953 new 
+01-19 11:40:15.979232 Добавлен путь: /home/ubuntu/NAS-project 
+01-19 11:40:15.979307 Текущие пути: ['/home/ubuntu/NAS-project/scripts', '/home/ubuntu/NAS-project', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/dist-packages', '/usr/lib/python3/dist-packages', '/home/ubuntu/NAS-project'] 
+01-19 11:40:17.650363 Система: Unix (Linux или macOS) 
+01-19 11:40:17.653469 Будет использоваться cpu 
+01-19 11:42:20.114530 new 
+01-19 11:42:20.114826 Добавлен путь: /home/ubuntu/NAS-project 
+01-19 11:42:20.114920 Текущие пути: ['/home/ubuntu/NAS-project/scripts', '/home/ubuntu/NAS-project', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/dist-packages', '/usr/lib/python3/dist-packages', '/home/ubuntu/NAS-project'] 
+01-19 11:42:21.818204 Система: Unix (Linux или macOS) 
+01-19 11:42:21.821457 Будет использоваться cpu 
+01-19 11:42:21.821575 Успешный импорт 
+01-19 11:42:21.821622 Получены следующие аргументы: 
+01-19 11:42:21.821672 Mode: new 
+01-19 11:42:21.821713 ModeName: test1 
+01-19 11:42:21.821755 Other Args: [] 
+01-19 11:42:21.822035 Режим new был успешно создан 
+01-19 11:42:21.822084 
+ 
+01-19 11:43:05.539954 new 
+01-19 11:43:05.540203 Добавлен путь: /home/ubuntu/NAS-project 
+01-19 11:43:05.540275 Текущие пути: ['/home/ubuntu/NAS-project/scripts', '/home/ubuntu/NAS-project', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/dist-packages', '/usr/lib/python3/dist-packages', '/home/ubuntu/NAS-project'] 
+01-19 11:43:05.540337 Успешный импорт 
+01-19 11:43:05.540380 Получены следующие аргументы: 
+01-19 11:43:05.540418 Mode: new 
+01-19 11:43:05.540457 ModeName: test1 
+01-19 11:43:05.540496 Other Args: [] 
+01-19 11:46:30.373882 new 
+01-19 11:46:30.374176 Добавлен путь: /home/ubuntu/NAS-project 
+01-19 11:46:30.374268 Текущие пути: ['/home/ubuntu/NAS-project/scripts', '/home/ubuntu/NAS-project', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/dist-packages', '/usr/lib/python3/dist-packages', '/home/ubuntu/NAS-project'] 
+01-19 11:46:32.007276 Система: Unix (Linux или macOS) 
+01-19 11:46:32.010755 Будет использоваться cpu 
+01-19 11:46:32.010887 Успешный импорт 
+01-19 11:46:32.010935 Получены следующие аргументы: 
+01-19 11:46:32.010975 Mode: new 
+01-19 11:46:32.011014 ModeName: test1 
+01-19 11:46:32.011054 Other Args: [] 
+01-19 11:46:32.011120 Режим уже существует, воспользуйтесь delete и создайте режим заново 
+01-19 11:46:32.011160 
+ 
