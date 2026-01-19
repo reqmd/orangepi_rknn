@@ -12,8 +12,10 @@ class mylogger(object):
         if self.tofile:
             f = open(self.fn, 'a')
             c_time = datetime.now()
-            f_time = c_time.strftime("%m-%d %H:%M:%S.%f")
+            f_time = c_time.strftime(f"%m-%d %H:%M:%S.%f:.3f")
             f.write(f'{f_time} {toprint}\n')
             f.close
         else: print(toprint)
         return
+    def excepterror():
+        pass

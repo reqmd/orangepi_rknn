@@ -58,11 +58,17 @@ def main(mode, arguments = None):
                 print('Режим уже существует, воспользуйтесь delete и создайте режим заново')
 
         case 'delete':
-            if not os.path.exists(mode_name):
+            if not os.path.exists(os.path.join(DATA_PATH, mode_name)):
                 modename_path = os.path.join(DATA_PATH, mode_name)
                 os.system(f"sudo rm -rf {modename_path}")
             else:
                 print('Режим не существует')
+                
+        case 'rotate':
+            with open (LOG_FILE, 'w')as f:
+                print(f'Лог-файл {LOG_FILE} успешно очищен')
+
         case _:
             print(f'Получен неизвестный режим {mode}')
+
     print('\n')
