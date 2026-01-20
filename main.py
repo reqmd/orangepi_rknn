@@ -2,8 +2,10 @@ import sys
 import os
 import shutil
 import subprocess
+from testing.rknn.rknn_test import timer
 
 from src.utils.device_func import device_config
+from src.training.train import __train__
 from logs.logger import mylogger
 
 LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
@@ -44,6 +46,27 @@ print(f'Будет использоваться {device}')
 
 # Основной цикл
 def main(mode, arguments = None):
+    '''Основная функция отвечающая за выбор режима работы программы
+
+    Ключевые аргументы:
+    mode -> str - режим работы
+    arguments -> list - аргументы для режимов
+
+    Описание режимов:
+    testconnect None - проверка подключения к серверу и тестирование модуля main
+
+    rotate None - очистить лог файл
+
+    new [mode_name] - создание нового режима с названием mode_name
+
+    delete [mode_name] - удаление существующего режима mode_name
+     
+    extract [mode_name] - извлечение архива и преобразование его в набор данных для режима mode_name
+    
+    train [mode_name, train_mode, ...] - тренировка модели на наборе данных mode_name с режимом работы train_mode
+
+    test [mode_name, test_mode, ...] - тестирование модели на наборе данных mode_name с режимом работы test_mode 
+    '''
     print('Успешный импорт')
     print(f'Получены следующие аргументы:')
     print(f'Mode: {mode}')
@@ -89,19 +112,55 @@ def main(mode, arguments = None):
                     mode_path = os.path.join(DATA_PATH, mode_name, 'images')
                     command = ["/usr/bin/7z", "x", os.path.join(TARS_PATH, archive), f"-o{mode_path}", "-y"]
                     result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-                    #запись работы 7z
-                    print(result.stdout.decode("utf-8"))
-                    print(result.stderr.decode("utf-8"))
+                    # извлекли архив
+                    # запись работы 7z
+                    # print(result.stdout.decode("utf-8"))
+                    # print(result.stderr.decode("utf-8"))
                     if os.listdir(mode_path) != [] and result.returncode == 0:
                         print(f'Архив успешно распакован и находится в {mode_path}')
                     else:
                         print('Не удалось распаковать архив или архива нет в нужной папке')
+                    
+                    # преобразование содержимого архива в набор данных
+                    classes = os.listdir(mode_path)
+                    for cls in classes:
+                        cls_path = os.listdir(os.path.join(mode_path, cls))
+                        cameras_list = os.listdir(cls_path)
+                        for camera_num in cameras_list:
+                            images_list = os.listdir(os.path.join(cls_path, camera_num))
+                            for image in images_list:
+                                os.rename(image, f'{cls_path}/{camera_num}_{image}')
+                    
+                    #должно получиться class1 - 01_1.bmp, 01_2.bmp, ... 
+                    print('Набор данных преобразован в нужный формат')
             else:
                 print('Название режима отсутствует')
 
         case 'testconnect':
             print('Проверка на успешное соединение к серверу')
+
+        case 'train':
+            if mode_name != None:
+                if os.path.exists(os.path.join(DATA_PATH, mode_name)):
+                    modename_path = os.path.join(DATA_PATH, mode_name)
+                    data = os.path.join(modename_path, 'images')
+                    timestamp_train_start = timer()
+                    __train__(data=data)
+                    timestamp_train_end = timer()
+                    print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
+                else:
+                    print('Режима не существует')
+            else:
+                print('Название режима отсутствует')
+
+
+
+
+
+
+
+        case 'test':
+            pass
 
         case _:
             print(f'Получен неизвестный режим {mode}')
