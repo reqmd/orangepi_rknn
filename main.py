@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 import stat
+from datetime import datetime
 
 from testing.rknn.rknn_test import timer
 from src.data.dataset import LabeledDataset
@@ -65,9 +66,9 @@ def main(mode, arguments = None):
      
     extract [mode_name] - извлечение архива и преобразование его в набор данных для режима mode_name
     
-    train [mode_name, train_mode, ...] - тренировка модели на наборе данных mode_name с режимом работы train_mode
+    train [mode_name, train_mode, model_name] - тренировка модели на наборе данных mode_name с режимом работы train_mode
 
-    test [mode_name, test_mode, ...] - тестирование модели на наборе данных mode_name с режимом работы test_mode 
+    test [mode_name, test_mode, model_name] - тестирование модели на наборе данных mode_name с режимом работы test_mode 
     '''
     print('Успешный импорт')
     print(f'Получены следующие аргументы:')
@@ -151,10 +152,13 @@ def main(mode, arguments = None):
             if mode_name != None:
                 if os.path.exists(os.path.join(DATA_PATH, mode_name)):
                     modename_path = os.path.join(DATA_PATH, mode_name)
+                    time = datetime.now()
+                    f_time = time.strftime("%d-%m %H:%M:")
+                    model_name = f'{f_time}:{mode_name}'
                     d_path = os.path.join(modename_path, 'images')
                     data = LabeledDataset(d_path)
                     timestamp_train_start = timer()
-                    __train__(data=data)
+                    __train__(data=data, model_name = model_name)
                     timestamp_train_end = timer()
                     print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
                 else:

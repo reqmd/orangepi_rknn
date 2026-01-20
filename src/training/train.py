@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from sklearn.metrics import f1_score
+import os
 
 from src.utils.config_funcs import load_yaml
 from src.data.dataset import LabeledDataset
@@ -11,13 +12,14 @@ from src.utils.save_load import save_model, load_model
 from logs.logger import mylogger
 
 # логирование в файл результатов обучения
+MODELS_PATH = '/home/ubuntu/NAS-project/models'
 LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
 PRINT_TO_FILE = True
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
 print = log.printml
 
 
-def __train__(data,
+def __train__(data, model_name,
               use_for_hyperparams = False):
     prep_params = load_yaml('configs/static/prep_configs/st_prep_config.yaml')
     model_params = load_yaml('configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml')
@@ -80,7 +82,7 @@ def __train__(data,
             f1_best_epoch = epoch
             model_state_dict = model.state_dict()
 
-    save_model(model_state_dict, 'standart_model.pth')
+    save_model(model_state_dict, os.path.join(MODELS_PATH, model_name))
     print(f'Лучшая метрика была достигнута на {f1_best_epoch+1} эпохе, значение f1 {f1_best:.6f}')
     if use_for_hyperparams == True:
         return f1_best
