@@ -12,6 +12,7 @@ OS = 'UNKNOWN'
 DATA_PATH = './data'
 TARS_PATH = './tars'
 
+
 #Логирование принта в файл
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
 print = log.printml
@@ -69,6 +70,7 @@ def main(mode, arguments = None):
                 if os.path.exists(os.path.join(DATA_PATH, mode_name)):
                     modename_path = os.path.join(DATA_PATH, mode_name)
                     shutil.rmtree(modename_path)
+                    print(f'Режим {mode_name} удален')
                 else:
                     print('Режим не существует')
             else:
@@ -97,6 +99,9 @@ def main(mode, arguments = None):
                         print('Не удалось распаковать архив или архива нет в нужной папке')
             else:
                 print('Название режима отсутствует')
+
+        case 'testconnect':
+            print('Проверка на успешное соединение к серверу')
 
         case _:
             print(f'Получен неизвестный режим {mode}')
