@@ -84,6 +84,7 @@ def __train__(data, model_name,
 
     save_model(model_state_dict, os.path.join(MODELS_PATH, model_name))
     print(f'Лучшая метрика была достигнута на {f1_best_epoch+1} эпохе, значение f1 {f1_best:.6f}')
+    print(f'Модель сохранена {os.path.join(MODELS_PATH, model_name)}')
     if use_for_hyperparams == True:
         return f1_best
     
