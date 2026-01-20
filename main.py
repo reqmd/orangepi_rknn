@@ -5,7 +5,7 @@ import subprocess
 import stat
 
 from testing.rknn.rknn_test import timer
-
+from src.data.dataset import LabeledDataset
 from src.utils.device_func import device_config
 from src.training.train import __train__
 from logs.logger import mylogger
@@ -84,7 +84,7 @@ def main(mode, arguments = None):
                     os.mkdir(modename_path)
                     os.mkdir(os.path.join(modename_path, 'images'))
                     os.mkdir(os.path.join(modename_path, 'annotations'))
-                    print(f'Режим {mode} был успешно создан')
+                    print(f'Режим {mode_name} был успешно создан')
                 else:
                     print('Режим уже существует, воспользуйтесь delete и создайте режим заново')
             else:
@@ -139,7 +139,7 @@ def main(mode, arguments = None):
                                 os.rename(os.path.join(cls_path, camera_num, image), f'{cls_path}/{camera_num}_{image}')
                             shutil.rmtree(camera_path)
                     
-                    #должно получиться class1 - 01_1.bmp, 01_2.bmp, ... 
+                    # должно получиться class1 - 01_1.bmp, 01_2.bmp, ... 
                     print('Набор данных преобразован в нужный формат')
             else:
                 print('Название режима отсутствует')
@@ -151,7 +151,8 @@ def main(mode, arguments = None):
             if mode_name != None:
                 if os.path.exists(os.path.join(DATA_PATH, mode_name)):
                     modename_path = os.path.join(DATA_PATH, mode_name)
-                    data = os.path.join(modename_path, 'images')
+                    d_path = os.path.join(modename_path, 'images')
+                    data = LabeledDataset(d_path)
                     timestamp_train_start = timer()
                     __train__(data=data)
                     timestamp_train_end = timer()
@@ -160,11 +161,6 @@ def main(mode, arguments = None):
                     print('Режима не существует')
             else:
                 print('Название режима отсутствует')
-
-
-
-
-
 
 
         case 'test':

@@ -8,6 +8,14 @@ from src.data.dataset import LabeledDataset
 from src.data.funcs import train_test_split, dataset_into_loader
 from src.utils.early_stopping import EarlyStopping
 from src.utils.save_load import save_model, load_model
+from logs.logger import mylogger
+
+# логирование в файл результатов обучения
+LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
+PRINT_TO_FILE = True
+log = mylogger(LOG_FILE, PRINT_TO_FILE)
+print = log.printml
+
 
 def __train__(data,
               use_for_hyperparams = False):

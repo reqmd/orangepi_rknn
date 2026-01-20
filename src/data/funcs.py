@@ -4,18 +4,25 @@ import shutil
 import os
 
 from .transforms import return_transforms
-from .dataset import TrainTestSubset, LabeledDataset
+from .dataset import TrainTestSubset
 from sklearn.model_selection import train_test_split as tts
+from logs.logger import mylogger
+
+LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
+PRINT_TO_FILE = True
+log = mylogger(LOG_FILE, PRINT_TO_FILE)
+print = log.printml
 
 def solve_imbalance(data):
     labels = [label for _, label in data]
     class_counts = np.bincount(labels)
+    print(f'Кол-во изображений в каждом классе: {class_counts}')
     class_weights = 1. / class_counts
     sample_weights = class_weights[labels]
     sampler = WeightedRandomSampler(weights=sample_weights, num_samples=int(np.min(class_counts) * len(class_counts)), replacement=False)
     return sampler
 
-def train_test_split(data, resolution, test_size=0.5):
+def train_test_split(data, resolution, test_size=0.25):
     indices = list(range(len(data)))
     train_indices, val_indices = tts(indices, test_size=test_size, random_state=42, stratify=data.labels)
     train_transform, val_transform = return_transforms(resolutions=resolution)
