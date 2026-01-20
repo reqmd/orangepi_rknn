@@ -75,7 +75,7 @@ while True:
     try:
         import main
         if mode in COMMANDS:
-            if mode != ('ftp' and 'sendlog'):
+            if mode != 'ftp' and mode != 'sendlog':
                 main.main(mode, arguments)
             else:
                 output = run_command(COMMANDS[mode])

@@ -124,12 +124,12 @@ def main(mode, arguments = None):
                     # преобразование содержимого архива в набор данных
                     classes = os.listdir(mode_path)
                     for cls in classes:
-                        cls_path = os.listdir(os.path.join(mode_path, cls))
+                        cls_path = os.path.join(mode_path, cls)
                         cameras_list = os.listdir(cls_path)
                         for camera_num in cameras_list:
                             images_list = os.listdir(os.path.join(cls_path, camera_num))
                             for image in images_list:
-                                os.rename(image, f'{cls_path}/{camera_num}_{image}')
+                                os.rename(os.path.join(cls_path, camera_num, image), f'{cls_path}/{camera_num}_{image}')
                     
                     #должно получиться class1 - 01_1.bmp, 01_2.bmp, ... 
                     print('Набор данных преобразован в нужный формат')

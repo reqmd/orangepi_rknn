@@ -16,8 +16,7 @@ send "cd $remote_dir\r"
 expect "ftp"
 send "lcd $local_dir\r"
 expect "ftp"
-send "mget *.zip \r"
+send "mget *.zip\r"
 expect "ftp"
 send "bye\r"
 interact
-
