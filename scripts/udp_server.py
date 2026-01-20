@@ -11,14 +11,14 @@ BUFFER_SIZE = 1024
 
 COMMANDS = {
     'ftp': "/home/ubuntu/NAS-project/scripts/ftp.sh",
-    'sendlog':"/home/ubuntu/NAS-project/scripts/sendlog.sh",
+    'sendlog':"/home/ubuntu/NAS-project/scripts/log.sh",
     "new": "new mode",
     "delete": "delete mode",
     "test": "test mode",
     "train": "train mode",
     "rotate": "rotate log mode",
     "extract":"extract archive mode",
-    "":""
+    "testconnect":"test connection with server mode"
 }
 
 class mylogger(object):
@@ -75,7 +75,7 @@ while True:
     try:
         import main
         if mode in COMMANDS:
-            if mode != ('ftp' or 'sendlog'):
+            if mode != ('ftp' and 'sendlog'):
                 main.main(mode, arguments)
             else:
                 output = run_command(COMMANDS[mode])
