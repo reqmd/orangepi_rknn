@@ -1,7 +1,7 @@
 import sys
 import os
 import shutil
-from zipfile import ZipFile
+import subprocess
 
 from src.utils.device_func import device_config
 from logs.logger import mylogger
@@ -85,12 +85,16 @@ def main(mode, arguments = None):
                 else:
                     archive = os.listdir(TARS_PATH)[0]
                     mode_path = os.path.join(DATA_PATH, mode_name, 'images')
-                    with ZipFile(os.path.join(TARS_PATH, archive), 'r') as mz:
-                        mz.extractall(path = mode_path)
-                    if os.listdir(mode_path) != []:
+                    command = ["/usr/bin/7z", "x", os.path.join(TARS_PATH, archive), f"-o{mode_path}", "-y"]
+                    result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                    #запись работы 7z
+                    print(result.stdout.decode("utf-8"))
+                    print(result.stderr.decode("utf-8"))
+                    if os.listdir(mode_path) != [] and result.returncode == 0:
                         print(f'Архив успешно распакован и находится в {mode_path}')
                     else:
-                        print('Не удалось распаковать архив')
+                        print('Не удалось распаковать архив или архива нет в нужной папке')
             else:
                 print('Название режима отсутствует')
 

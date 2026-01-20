@@ -75,10 +75,10 @@ while True:
         if mode in COMMANDS:
             if mode != 'ftp':
                 main.main(mode, arguments)
-                output = 'OK'
             else:
                 output = run_command(COMMANDS[mode])
-            response = f"OK: {message} -> {output}"
+                print(output)
+            response = f"OK: {message}"
         else:
             response = "Unknown command"
     except ImportError as e:
