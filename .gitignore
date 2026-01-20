@@ -19,3 +19,4 @@ images/
 annotations/
 *.txt
 *.tar
+/tars

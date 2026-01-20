@@ -16,7 +16,7 @@ COMMANDS = {
     "test": "test mode",
     "train": "train mode",
     "rotate": "rotate log mode",
-    "exctract":"extract archive mode"
+    "extract":"extract archive mode"
 }
 
 class mylogger(object):
@@ -65,8 +65,11 @@ print = log.printml
 while True:
     data, addr = sock.recvfrom(BUFFER_SIZE)
     message = data.decode("utf-8").strip().lower().split(' ')
-    mode, arguments = message[0], message[1:]
-    print(mode)
+    if len(message) > 1:
+        mode, arguments = message[0], message[1:]
+    else:
+        mode, arguments = message[0], [' ']
+    print(mode, arguments)
     try:
         import main
         if mode in COMMANDS:

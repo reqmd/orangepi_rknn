@@ -1,7 +1,7 @@
 import sys
 import os
 import shutil
-from zipfile import Zipfile
+from zipfile import ZipFile
 
 from src.utils.device_func import device_config
 from logs.logger import mylogger
@@ -85,7 +85,7 @@ def main(mode, arguments = None):
                 else:
                     archive = os.listdir(TARS_PATH)[0]
                     mode_path = os.path.join(DATA_PATH, mode_name, 'images')
-                    with Zipfile(archive, 'r') as mz:
+                    with ZipFile(os.path.join(TARS_PATH, archive), 'r') as mz:
                         mz.extractall(path = mode_path)
                     if os.listdir(mode_path) != []:
                         print(f'Архив успешно распакован и находится в {mode_path}')
