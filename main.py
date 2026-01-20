@@ -2,6 +2,8 @@ import sys
 import os
 import shutil
 import subprocess
+import stat
+
 from testing.rknn.rknn_test import timer
 
 from src.utils.device_func import device_config
@@ -118,6 +120,7 @@ def main(mode, arguments = None):
                     # print(result.stderr.decode("utf-8"))
                     if os.listdir(mode_path) != [] and result.returncode == 0:
                         print(f'Архив успешно распакован и находится в {mode_path}')
+                        os.remove(os.path.join(TARS_PATH, archive))
                     else:
                         print('Не удалось распаковать архив или архива нет в нужной папке')
                     
@@ -125,11 +128,16 @@ def main(mode, arguments = None):
                     classes = os.listdir(mode_path)
                     for cls in classes:
                         cls_path = os.path.join(mode_path, cls)
+                        current_mode = os.stat(cls_path).st_mode
+                        new_mode = current_mode | stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
+                        os.chmod(cls_path, new_mode)
                         cameras_list = os.listdir(cls_path)
                         for camera_num in cameras_list:
-                            images_list = os.listdir(os.path.join(cls_path, camera_num))
+                            camera_path = os.path.join(cls_path, camera_num)
+                            images_list = os.listdir(camera_path)
                             for image in images_list:
                                 os.rename(os.path.join(cls_path, camera_num, image), f'{cls_path}/{camera_num}_{image}')
+                            shutil.rmtree(camera_path)
                     
                     #должно получиться class1 - 01_1.bmp, 01_2.bmp, ... 
                     print('Набор данных преобразован в нужный формат')
