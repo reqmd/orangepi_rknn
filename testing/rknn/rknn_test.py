@@ -44,7 +44,7 @@ def generate_txt(data_root):
         images_list = os.listdir(i_root)
         with open(os.path.join(data_root, 'annotations', 'dataset_annot.txt'), 'w') as file:
             for image in images_list:
-                file.write(image)
+                file.write(f'{image}\n')
             file.close()
     pass
 
@@ -94,7 +94,7 @@ def __rknn__(model_name, data_root):
     print('OK')
 
     print('--> Creating dataloader with batch_size=1')
-    data = LabeledDataset(data_root)
+    data = LabeledDataset(os.path.join(data_root, 'images'))
     loader = dataset_into_loader(data=data, batch_size=1)
 
     print('--> Init runtime environment')
