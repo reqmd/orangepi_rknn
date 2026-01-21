@@ -16,6 +16,6 @@ def run_command(cmd):
 def run_check_call(args):
     try:
         result = subprocess.check_call(args=args)
-        return result.stdout
+        return result
     except Exception as e:
         return f"ERROR: {e}"

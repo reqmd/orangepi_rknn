@@ -113,10 +113,10 @@ def main(mode, arguments = None):
                     os.mkdir(os.path.join(modename_path, 'annotations'))
                     print(f'Режим {mode_name} был успешно создан')
                 else:
-                    print('Режим уже существует, воспользуйтесь delete и создайте режим заново')
+                    print('Режим уже существует, воспользуйтесь delete и создайте режим заново\n')
                     return 'Режим уже существует, воспользуйтесь delete и создайте режим заново'
             else:
-                print('Название режима отсутствует')
+                print('Название режима отсутствует\n')
                 return 'Название режима отсутствует'
 
         case 'delete':
@@ -126,10 +126,10 @@ def main(mode, arguments = None):
                     shutil.rmtree(modename_path)
                     print(f'Режим {mode_name} удален')
                 else:
-                    print('Режим не существует')
+                    print('Режим не существует\n')
                     return 'Режим не существует'
             else:
-                print('Название режима отсутствует')
+                print('Название режима отсутствует\n')
                 return 'Название режима отсутствует'
 
         case 'rotate':
@@ -139,7 +139,7 @@ def main(mode, arguments = None):
         case 'extract':
             if mode_name != None:
                 if os.listdir(TARS_PATH) == []:
-                    print('В папке нет архива')
+                    print('В папке нет архива\n')
                     return 'В папке нет архива'
                 else:
                     archive = os.listdir(TARS_PATH)[0]
@@ -154,7 +154,7 @@ def main(mode, arguments = None):
                         print(f'Архив успешно распакован и находится в {mode_path}')
                         os.remove(os.path.join(TARS_PATH, archive))
                     else:
-                        print('Не удалось распаковать архив или архива нет в нужной папке')
+                        print('Не удалось распаковать архив или архива нет в нужной папке\n')
                         return 'Не удалось распаковать архив или архива нет в нужной папке'
                     
                     # преобразование содержимого архива в набор данных
@@ -175,11 +175,11 @@ def main(mode, arguments = None):
                     # должно получиться class1 - 01_1.bmp, 01_2.bmp, ... 
                     print('Набор данных преобразован в нужный формат')
             else:
-                print('Название режима отсутствует')
+                print('Название режима отсутствует\n')
                 return 'Название режима отсутствует'
 
         case 'testconnect':
-            print('Проверка на успешное соединение к серверу')
+            print('Проверка на успешное соединение к серверу\n')
 
         case 'train':
             if mode_name != None:
@@ -195,10 +195,10 @@ def main(mode, arguments = None):
                     timestamp_train_end = timer()
                     print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
                 else:
-                    print('Режима не существует')
+                    print('Режима не существует\n')
                     return 'Режима не существует'
             else:
-                print('Название режима отсутствует')
+                print('Название режима отсутствует\n')
                 return 'Название режима отсутствует'
 
         case 'test':
@@ -211,34 +211,32 @@ def main(mode, arguments = None):
                         if model_name == f'{mode_name}.pth':
                             inf_model = os.path.join(MODELS_PATH, model_name)
                         else:
-                            print('Модель для такого режима не найдена')
+                            print('Модель для такого режима не найдена\n')
                     __rknn__(model_name=inf_model, data_root=modename_path)
                     
                 else:
-                    print('Режима не существует')
+                    print('Режима не существует\n')
                     return 'Режима не существует'
             else:
-                print('Название режима отсутствует')
+                print('Название режима отсутствует\n')
                 return 'Название режима отсутствует'
         
         case 'sendmodel':
             if mode_name != None:
                 models_list = os.listdir(MODELS_PATH)
-                if os.path.exists(os.path.join(DATA_PATH, mode_name)):
-                    for model in models_list:
-                        model_name = model.split(':')[1]
-                        if model_name == f'{mode_name}.pth':
-                            mdl = model
-                        else:
-                            print('Модель для такого режима не найдена')
-                    if os.path.exists(inf_model):
-                        result = run_check_call(args=[COMMANDS[mode], mdl])
-                        print(result)
-                else:
-                    print('Режима не существует')
-                    return 'Режима не существует'
+                for model in models_list:
+                    model_name = model.split(':')[1]
+                    if model_name == f'{mode_name}.pth':
+                        mdl = model
+                    else:
+                        print('Модель для такого режима не найдена\n')
+                        return 
+                if os.path.exists(inf_model):
+                    result = run_check_call(args=[COMMANDS[mode], mdl])
+                    print(result.stdout)
+                
             else:
-                print('Название режима отсутствует')
+                print('Название режима отсутствует\n')
                 return 'Название режима отсутствует'
 
         case 'sendannot':
@@ -248,18 +246,18 @@ def main(mode, arguments = None):
                     result = run_check_call(args=[COMMANDS[mode], annot_root])
                     print(result)
                 else:
-                    print('Папки аннотаций не существует')
+                    print('Папки аннотаций не существует\n')
                     return 'Папки аннотаций не существует'
             else:
-                print('Название режима отсутствует')
+                print('Название режима отсутствует\n')
                 return 'Название режима отсутствует'
 
         case 'raiseerr':
-            print('Вызов примера ошибки')
+            print('Вызов примера ошибки\n')
             return 'Вызов примера ошибки'
 
         case _:
-            print(f'Получен неизвестный режим {mode}')
+            print(f'Получен неизвестный режим {mode}\n')
             return f'Получен неизвестный режим {mode}'
 
     print('Конец работы команды\n')
