@@ -9,6 +9,8 @@ from testing.rknn.rknn_test import timer
 from src.data.dataset import LabeledDataset
 from src.utils.device_func import device_config
 from src.training.train import __train__
+from scripts.run_sh import run_check_call, run_command
+from testing.rknn.rknn_test import __rknn__
 from logs.logger import mylogger
 
 LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
@@ -16,7 +18,14 @@ PRINT_TO_FILE = True
 OS = 'UNKNOWN'
 DATA_PATH = './data'
 TARS_PATH = './tars'
+MODELS_PATH = './models'
 
+COMMANDS = {
+    'ftp': "/home/ubuntu/NAS-project/scripts/ftp.sh",
+    'sendlog':"/home/ubuntu/NAS-project/scripts/sendlog.sh",
+    'sendannot':"/home/ubuntu/NAS-project/scripts/sendannot.sh",
+    'sendmodel':"/home/ubuntu/NAS-project/scripts/sendmodel.sh"
+}
 
 #Логирование принта в файл
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
@@ -66,9 +75,18 @@ def main(mode, arguments = None):
      
     extract [mode_name] - извлечение архива и преобразование его в набор данных для режима mode_name
     
-    train [mode_name, train_mode, model_name] - тренировка модели на наборе данных mode_name с режимом работы train_mode
+    train [mode_name, train_mode, ... ] - тренировка модели на наборе данных mode_name с режимом работы train_mode
 
-    test [mode_name, test_mode, model_name] - тестирование модели на наборе данных mode_name с режимом работы test_mode 
+    test [mode_name, test_mode, ...] - тестирование модели на наборе данных mode_name с режимом работы test_mode 
+
+    Режимы, которые обрабатываются через .sh скрипты
+    ftp None - команда для скачивания архива .zip из папки download
+
+    sendlog None - команда для получения .log файла работы сервера
+
+    sendannot [mode_name] - команда для получения .txt файла предсказаний модели после режима test 
+
+    sendmodel [mode_name] - команда для получения .pth файла модели после режима test или train
     '''
     print('Успешный импорт')
     print(f'Получены следующие аргументы:')
@@ -78,6 +96,14 @@ def main(mode, arguments = None):
     print(f'Other Args: {arguments[1:]}')
     
     match mode:
+        case 'ftp':
+            result = run_command(COMMANDS[mode])
+            print(result.stdout)
+
+        case 'sendlog':
+            result = run_command(COMMANDS[mode])
+            print(result.stdout)
+
         case 'new':
             if mode_name != None:
                 if not os.path.exists(os.path.join(DATA_PATH, mode_name)):
@@ -153,7 +179,7 @@ def main(mode, arguments = None):
                 if os.path.exists(os.path.join(DATA_PATH, mode_name)):
                     modename_path = os.path.join(DATA_PATH, mode_name)
                     time = datetime.now()
-                    f_time = time.strftime("%d.%m %H:%M:")
+                    f_time = time.strftime("%d.%m %H.%M")
                     model_name = f'{f_time}:{mode_name}.pth'
                     d_path = os.path.join(modename_path, 'images')
                     data = LabeledDataset(d_path)
@@ -166,9 +192,56 @@ def main(mode, arguments = None):
             else:
                 print('Название режима отсутствует')
 
-
         case 'test':
-            pass
+            if mode_name != None:
+                if os.path.exists(os.path.join(DATA_PATH, mode_name)):
+                    modename_path = os.path.join(DATA_PATH, mode_name)
+                    models_list = os.listdir(MODELS_PATH)
+                    for model in models_list:
+                        model_name = model.split(':')[1]
+                        if model_name == f'{mode_name}.pth':
+                            inf_model = os.path.join(MODELS_PATH, model_name)
+                        else:
+                            print('Модель для такого режима не найдена')
+                    __rknn__(model_name=inf_model, data_root=modename_path)
+                    
+                else:
+                    print('Режима не существует')
+            else:
+                print('Название режима отсутствует')
+        
+        case 'sendmodel':
+            if mode_name != None:
+                models_list = os.listdir(MODELS_PATH)
+                if os.path.exists(os.path.join(DATA_PATH, mode_name)):
+                    for model in models_list:
+                        model_name = model.split(':')[1]
+                        if model_name == f'{mode_name}.pth':
+                            mdl = model
+                        else:
+                            print('Модель для такого режима не найдена')
+                    if os.path.exists(inf_model):
+                        result = run_check_call(args=[COMMANDS[mode], mdl])
+                        print(result.stdout)
+                else:
+                    print('Режима не существует')
+            else:
+                print('Название режима отсутствует')
+
+        case 'sendannot':
+            if mode_name != None:
+                annot_root = os.path.join(DATA_PATH, mode_name, 'annotations')
+                if os.path.exists(annot_root):
+                    result = run_check_call(args=[COMMANDS[mode], annot_root])
+                    print(result.stdout)
+                else:
+                    print('Папки аннотаций не существует')
+            else:
+                print('Название режима отсутствует')
+
+        case 'raiseerr':
+            a = 9 / 0
+            print(a)
 
         case _:
             print(f'Получен неизвестный режим {mode}')

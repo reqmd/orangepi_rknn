@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import socket
-import subprocess
 import sys
 from pathlib import Path
 from datetime import datetime
@@ -11,7 +10,9 @@ BUFFER_SIZE = 1024
 
 COMMANDS = {
     'ftp': "/home/ubuntu/NAS-project/scripts/ftp.sh",
-    'sendlog':"/home/ubuntu/NAS-project/scripts/log.sh",
+    'sendlog':"/home/ubuntu/NAS-project/scripts/sendlog.sh",
+    'sendannot':"/home/ubuntu/NAS-project/scripts/sendannot.sh",
+    'sendmodel':"/home/ubuntu/NAS-project/scripts/sendmodel.sh",
     "new": "new mode",
     "delete": "delete mode",
     "test": "test mode",
@@ -42,19 +43,6 @@ class mylogger(object):
 project_root = Path(__file__).resolve().parent.parent
 sys.path.append(str(project_root))
 
-def run_command(cmd):
-    try:
-        result = subprocess.run(
-            cmd,
-            shell=True,
-            capture_output=True,
-            check=True,
-            text=True
-        )
-        return result.stdout or "OK"
-    except Exception as e:
-        return f"ERROR: {e}"
-
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind(("0.0.0.0", PORT))
 
@@ -75,14 +63,11 @@ while True:
     try:
         import main
         if mode in COMMANDS:
-            if mode != 'ftp' and mode != 'sendlog':
-                main.main(mode, arguments)
-            else:
-                output = run_command(COMMANDS[mode])
-                print(output)
+            main.main(mode, arguments)
             response = f"OK: {message}"
         else:
             response = "Unknown command"
-    except ImportError as e:
-        print(f'Ошибка импорта: {e}')
+    except Exception as e:
+        print(f'ERROR: {e}')
+        response = e
     sock.sendto(response.encode("utf-8"), addr)
