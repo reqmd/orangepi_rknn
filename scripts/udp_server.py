@@ -66,11 +66,11 @@ while True:
         if mode in COMMANDS:
             exit_code = main.main(mode, arguments)
             if exit_code != 0:
-                response = f"Error: {exit_code}"
+                response = f"Error: {message} {exit_code}"
             else:
                 response = f"OK: {message}"
         else:
             response = "Unknown command"
     except Exception as e:
-        print(str(traceback.format_exc())
+        print(str(traceback.format_exc()))
     sock.sendto(response.encode("utf-8"), addr)

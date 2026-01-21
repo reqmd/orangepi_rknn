@@ -98,11 +98,11 @@ def main(mode, arguments = None):
     match mode:
         case 'ftp':
             result = run_command(COMMANDS[mode])
-            print(result.stdout)
+            print(result)
 
         case 'sendlog':
             result = run_command(COMMANDS[mode])
-            print(result.stdout)
+            print(result)
 
         case 'new':
             if mode_name != None:
@@ -233,7 +233,7 @@ def main(mode, arguments = None):
                             print('Модель для такого режима не найдена')
                     if os.path.exists(inf_model):
                         result = run_check_call(args=[COMMANDS[mode], mdl])
-                        print(result.stdout)
+                        print(result)
                 else:
                     print('Режима не существует')
                     return 'Режима не существует'
@@ -246,7 +246,7 @@ def main(mode, arguments = None):
                 annot_root = os.path.join(DATA_PATH, mode_name, 'annotations')
                 if os.path.exists(annot_root):
                     result = run_check_call(args=[COMMANDS[mode], annot_root])
-                    print(result.stdout)
+                    print(result)
                 else:
                     print('Папки аннотаций не существует')
                     return 'Папки аннотаций не существует'
@@ -255,9 +255,8 @@ def main(mode, arguments = None):
                 return 'Название режима отсутствует'
 
         case 'raiseerr':
-            a = 9 / 0
-            print('Вызов примера ошибки деления на ноль')
-            return 'Вызов примера ошибки деления на ноль'
+            print('Вызов примера ошибки')
+            return 'Вызов примера ошибки'
 
         case _:
             print(f'Получен неизвестный режим {mode}')
