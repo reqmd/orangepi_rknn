@@ -264,11 +264,12 @@ def main(mode, arguments = None):
         case 'raiseerr':
             print('Вызов примера ошибки\n')
             return 'Вызов примера ошибки'
-        
+
         case 'stop':
-            print('Аваройное завершение обучения')
             subprocess.run(['sudo', 'systemctl', 'restart', 'u.service'], check = True)
-        
+            print('Аваройное завершение обучения')
+            return 'Аварийное завершение обучения'
+
         case _:
             print(f'Получен неизвестный режим {mode}\n')
             return f'Получен неизвестный режим {mode}'

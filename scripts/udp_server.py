@@ -61,6 +61,7 @@ def train_model(stop_event):
         print('Начала обучения')
         print(mode, arguments)
         result = main.main(mode, arguments)
+        return result
 
 while True:
     data, addr = sock.recvfrom(BUFFER_SIZE)
@@ -80,10 +81,14 @@ while True:
                 else:
                     response = f"OK: {message}"
             else:
-                response = f"OK: {message}"
                 stop_event = threading.Event()
                 training_thread = threading.Thread(target=train_model(), args=(stop_event,))
                 training_thread.start()
+                if mode == 'stop':
+                    stop_event.set()  # Сигнализируем потоку об остановке
+                    training_thread.join()  # Ждём завершения потока
+                    response = 'Обучение аварийно завершилось'
+                response = result
         else:
             response = "Unknown command"
     except Exception as e:
