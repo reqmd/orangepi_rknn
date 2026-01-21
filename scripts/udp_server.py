@@ -5,7 +5,8 @@ from pathlib import Path
 from datetime import datetime
 import traceback
 import threading
- 
+import subprocess 
+
 PORT = 4567
 BUFFER_SIZE = 1024
 
@@ -49,22 +50,29 @@ sys.path.append(str(project_root))
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind(("0.0.0.0", PORT))
 
+sock_stop = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock_stop.bind(("0.0.0.1", PORT))
+
+
 #Логирование принта в файл
 LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
 PRINT_TO_FILE = True
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
 print = log.printml
 
-def train_model(stop_event):
+def train_model(mode, arguments):
     global result
     while not stop_event.is_set():
-        print('Начало обучения')
-        print(mode, arguments)
         result = main.main(mode, arguments)
         return result
 
 while True:
     data, addr = sock.recvfrom(BUFFER_SIZE)
+    data_stop, addr_stop = seock_stop.recvfrom(BUFFER_SIZE)
+    message_stop = data_stop.decode("utf-8").strip().lower().split()
+    mode_stop = message_stop[0]
+    if mode_stop == 'stop':
+        subprocess.run(['sudo', 'systemctl', 'restart', 'u.service'], check = True, shell = True)
     message = data.decode("utf-8").strip().lower().split(' ')
     if len(message) > 1:
         mode, arguments = message[0], message[1:]
@@ -82,9 +90,13 @@ while True:
                     response = f"OK: {message}"
             else:
                 stop_event = threading.Event()
-                training_thread = threading.Thread(target=train_model(), args=(stop_event,))
+                training_thread = threading.Thread(target=train_model(mode, arguments), args=(stop_event, mode, arguments))
                 training_thread.start()
-                response = f"OK: {message}"
+                training_thread.join()
+                if result != 0:
+                    response = f"Error: {message} {result}"
+                else:
+                    response = f"OK: {message}"
         else:
             response = "Unknown command"
     except Exception as e:
