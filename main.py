@@ -265,6 +265,11 @@ def main(mode, arguments = None):
             print('Вызов примера ошибки\n')
             return 'Вызов примера ошибки'
 
+        case 'stop':
+            subprocess.run(['sudo', 'systemctl', 'restart', 'u.service'], check = True)
+            print('Аваройное завершение обучения')
+            return 'Аварийное завершение обучения'
+
         case _:
             print(f'Получен неизвестный режим {mode}\n')
             return f'Получен неизвестный режим {mode}'
