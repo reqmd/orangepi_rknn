@@ -77,7 +77,7 @@ def main(mode, arguments = None):
     
     train [mode_name, train_mode, ... ] - тренировка модели на наборе данных mode_name с режимом работы train_mode
 
-    test [mode_name, test_mode, ...] - тестирование модели на наборе данных mode_name с режимом работы test_mode 
+    test [mode_name, model_name, ...] - тестирование модели на наборе данных mode_name с режимом работы test_mode 
 
     Режимы, которые обрабатываются через .sh скрипты
     ftp None - команда для скачивания архива .zip из папки download
@@ -211,7 +211,7 @@ def main(mode, arguments = None):
                         model_name = model.split(':')
                         if len(model_name) < 2:
                             continue
-                        if model_name[1] == f'{mode_name}.pth':
+                        if model_name[1] == f'{arguments[1]}.pth':
                             inf_model = os.path.join(MODELS_PATH, model)
                         else:
                             print('Модель для такого режима не найдена\n')
@@ -238,7 +238,7 @@ def main(mode, arguments = None):
                         return 'Модель для такого режима не найдена'
                 if os.path.exists(mdl):
                     result = run_check_call(args=[COMMANDS[mode], mdl])
-                    print(result.stdout)
+                    print(result)
                 
             else:
                 print('Название режима отсутствует\n')
