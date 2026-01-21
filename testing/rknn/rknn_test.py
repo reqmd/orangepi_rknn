@@ -34,6 +34,7 @@ def export_pytorch_model(model_name):
 def generate_txt(data_root):
     images_root = os.path.join(data_root, 'images')
     folders = os.listdir(images_root) #заведомо должны понимать, что папка должна быть одна
+    print(folders)
     if len(folders) != 1:
         print('Папка не одна или её нет, поэтому невозможно сделать тестирование')
         return 1

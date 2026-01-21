@@ -206,10 +206,13 @@ def main(mode, arguments = None):
                 if os.path.exists(os.path.join(DATA_PATH, mode_name)):
                     modename_path = os.path.join(DATA_PATH, mode_name)
                     models_list = os.listdir(MODELS_PATH)
+                    print(models_list)
                     for model in models_list:
-                        model_name = model.split(':')[1]
-                        if model_name == f'{mode_name}.pth':
-                            inf_model = os.path.join(MODELS_PATH, model_name)
+                        model_name = model.split(':')
+                        if len(model_name) < 2:
+                            continue
+                        if model_name[1] == f'{mode_name}.pth':
+                            inf_model = os.path.join(MODELS_PATH, model)
                         else:
                             print('Модель для такого режима не найдена\n')
                     __rknn__(model_name=inf_model, data_root=modename_path)
@@ -225,13 +228,15 @@ def main(mode, arguments = None):
             if mode_name != None:
                 models_list = os.listdir(MODELS_PATH)
                 for model in models_list:
-                    model_name = model.split(':')[1]
-                    if model_name == f'{mode_name}.pth':
+                    model_name = model.split(':')
+                    if len(model_name) < 2:
+                        continue
+                    if model_name[1] == f'{mode_name}.pth':
                         mdl = model
                     else:
                         print('Модель для такого режима не найдена\n')
-                        return 
-                if os.path.exists(inf_model):
+                        return 'Модель для такого режима не найдена'
+                if os.path.exists(mdl):
                     result = run_check_call(args=[COMMANDS[mode], mdl])
                     print(result.stdout)
                 

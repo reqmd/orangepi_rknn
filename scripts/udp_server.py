@@ -73,4 +73,5 @@ while True:
             response = "Unknown command"
     except Exception as e:
         print(str(traceback.format_exc()))
+        response = 'Программа закончилась с какой то ошибкой, смотреть лог'
     sock.sendto(response.encode("utf-8"), addr)
