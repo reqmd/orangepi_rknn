@@ -8,6 +8,7 @@ from sklearn.metrics import classification_report
 from src.utils.config_funcs import load_yaml
 from src.utils.save_load import load_model
 from src.data.funcs import dataset_into_loader
+from src.data.transforms import return_transforms
 from src.data.dataset import LabeledDataset
 from logs.logger import mylogger
 
@@ -66,6 +67,8 @@ def __rknn__(model_name, data_root):
     input_size = [[1, 3, res, res]]
     rknn = RKNN(verbose=True)
     dataset_root = generate_txt(data_root=data_root)
+
+    train_transform, val_transform = return_transforms(resolutions=res)
     print('OK')
 
     print('--> Config model')
@@ -94,7 +97,7 @@ def __rknn__(model_name, data_root):
     print('OK')
 
     print('--> Creating dataloader with batch_size=1')
-    data = LabeledDataset(os.path.join(data_root, 'images'))
+    data = LabeledDataset(os.path.join(data_root, 'images'), transform=val_transform)
     loader = dataset_into_loader(data=data, batch_size=1)
 
     print('--> Init runtime environment')

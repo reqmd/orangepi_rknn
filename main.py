@@ -238,7 +238,9 @@ def main(mode, arguments = None):
                         return 'Модель для такого режима не найдена'
                 if os.path.exists(mdl):
                     result = run_check_call(args=[COMMANDS[mode], mdl])
-                    print(result)
+                    print(f'chech_call завершился с кодом {result}')
+                    if result != 0:
+                        return f'Программа завершилась с ошибкой {result}'
                 
             else:
                 print('Название режима отсутствует\n')
@@ -249,7 +251,9 @@ def main(mode, arguments = None):
                 annot_root = os.path.join(DATA_PATH, mode_name, 'annotations')
                 if os.path.exists(annot_root):
                     result = run_check_call(args=[COMMANDS[mode], annot_root])
-                    print(result)
+                    print(f'chech_call завершился с кодом {result}')
+                    if result != 0:
+                        return f'Программа завершилась с ошибкой {result}'
                 else:
                     print('Папки аннотаций не существует\n')
                     return 'Папки аннотаций не существует'
