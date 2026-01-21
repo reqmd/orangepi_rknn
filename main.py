@@ -114,8 +114,10 @@ def main(mode, arguments = None):
                     print(f'Режим {mode_name} был успешно создан')
                 else:
                     print('Режим уже существует, воспользуйтесь delete и создайте режим заново')
+                    return 'Режим уже существует, воспользуйтесь delete и создайте режим заново'
             else:
                 print('Название режима отсутствует')
+                return 'Название режима отсутствует'
 
         case 'delete':
             if mode_name != None:
@@ -125,8 +127,10 @@ def main(mode, arguments = None):
                     print(f'Режим {mode_name} удален')
                 else:
                     print('Режим не существует')
+                    return 'Режим не существует'
             else:
                 print('Название режима отсутствует')
+                return 'Название режима отсутствует'
 
         case 'rotate':
             with open (LOG_FILE, 'w') as f:
@@ -136,6 +140,7 @@ def main(mode, arguments = None):
             if mode_name != None:
                 if os.listdir(TARS_PATH) == []:
                     print('В папке нет архива')
+                    return 'В папке нет архива'
                 else:
                     archive = os.listdir(TARS_PATH)[0]
                     mode_path = os.path.join(DATA_PATH, mode_name, 'images')
@@ -150,6 +155,7 @@ def main(mode, arguments = None):
                         os.remove(os.path.join(TARS_PATH, archive))
                     else:
                         print('Не удалось распаковать архив или архива нет в нужной папке')
+                        return 'Не удалось распаковать архив или архива нет в нужной папке'
                     
                     # преобразование содержимого архива в набор данных
                     classes = os.listdir(mode_path)
@@ -170,6 +176,7 @@ def main(mode, arguments = None):
                     print('Набор данных преобразован в нужный формат')
             else:
                 print('Название режима отсутствует')
+                return 'Название режима отсутствует'
 
         case 'testconnect':
             print('Проверка на успешное соединение к серверу')
@@ -189,8 +196,10 @@ def main(mode, arguments = None):
                     print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
                 else:
                     print('Режима не существует')
+                    return 'Режима не существует'
             else:
                 print('Название режима отсутствует')
+                return 'Название режима отсутствует'
 
         case 'test':
             if mode_name != None:
@@ -207,8 +216,10 @@ def main(mode, arguments = None):
                     
                 else:
                     print('Режима не существует')
+                    return 'Режима не существует'
             else:
                 print('Название режима отсутствует')
+                return 'Название режима отсутствует'
         
         case 'sendmodel':
             if mode_name != None:
@@ -225,8 +236,10 @@ def main(mode, arguments = None):
                         print(result.stdout)
                 else:
                     print('Режима не существует')
+                    return 'Режима не существует'
             else:
                 print('Название режима отсутствует')
+                return 'Название режима отсутствует'
 
         case 'sendannot':
             if mode_name != None:
@@ -236,14 +249,19 @@ def main(mode, arguments = None):
                     print(result.stdout)
                 else:
                     print('Папки аннотаций не существует')
+                    return 'Папки аннотаций не существует'
             else:
                 print('Название режима отсутствует')
+                return 'Название режима отсутствует'
 
         case 'raiseerr':
             a = 9 / 0
-            print(a)
+            print('Вызов примера ошибки деления на ноль')
+            return 'Вызов примера ошибки деления на ноль'
 
         case _:
             print(f'Получен неизвестный режим {mode}')
+            return f'Получен неизвестный режим {mode}'
 
-    print('\n')
+    print('Конец работы команды\n')
+    return 0
