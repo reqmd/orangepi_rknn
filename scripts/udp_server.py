@@ -4,11 +4,13 @@ import sys
 from pathlib import Path
 from datetime import datetime
 import traceback
+import threading
  
 PORT = 4567
 BUFFER_SIZE = 1024
 
 COMMANDS = {
+    'stop':'abnormal stop mode',
     'ftp': "/home/ubuntu/NAS-project/scripts/ftp.sh",
     'sendlog':"/home/ubuntu/NAS-project/scripts/sendlog.sh",
     'sendannot':"/home/ubuntu/NAS-project/scripts/sendannot.sh",
@@ -53,6 +55,11 @@ PRINT_TO_FILE = True
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
 print = log.printml
 
+def train_model(stop_event):
+    global result
+    while not stop_event.is_set():
+        result = main.main(mode, arguments)
+
 while True:
     data, addr = sock.recvfrom(BUFFER_SIZE)
     message = data.decode("utf-8").strip().lower().split(' ')
@@ -64,11 +71,24 @@ while True:
     try:
         import main
         if mode in COMMANDS:
-            exit_code = main.main(mode, arguments)
-            if exit_code != 0:
-                response = f"Error: {message} {exit_code}"
+            if mode != 'train' and mode != 'stop': 
+                exit_code = main.main(mode, arguments)
+                if exit_code != 0:
+                    response = f"Error: {message} {exit_code}"
+                else:
+                    response = f"OK: {message}"
             else:
-                response = f"OK: {message}"
+                stop_event = threading.Event()
+                training_thread = threading.Thread(target=train_model, args=(stop_event,))
+                training_thread.start()
+                if mode == 'stop':
+                    stop_event.set()  # Сигнализируем потоку об остановке
+                    training_thread.join()  # Ждём завершения потока
+                    response = 'Обучение аварийно завершилось'
+                if exit_code != 0:
+                    response = f"Error: {message} {exit_code}"
+                else:
+                    response = f"OK: {message}"
         else:
             response = "Unknown command"
     except Exception as e:
