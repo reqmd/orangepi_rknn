@@ -58,7 +58,7 @@ print = log.printml
 def train_model(stop_event):
     global result
     while not stop_event.is_set():
-        print('Начала обучения')
+        print('Начало обучения')
         print(mode, arguments)
         result = main.main(mode, arguments)
         return result
@@ -84,11 +84,7 @@ while True:
                 stop_event = threading.Event()
                 training_thread = threading.Thread(target=train_model(), args=(stop_event,))
                 training_thread.start()
-                if mode == 'stop':
-                    stop_event.set()  # Сигнализируем потоку об остановке
-                    training_thread.join()  # Ждём завершения потока
-                    response = 'Обучение аварийно завершилось'
-                response = result
+                response = f"OK: {message}"
         else:
             response = "Unknown command"
     except Exception as e:
