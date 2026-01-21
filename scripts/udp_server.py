@@ -56,12 +56,18 @@ PRINT_TO_FILE = True
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
 print = log.printml
 
+training_thread = None
+stop_event = threading.Event()
+
 def train_model(mode, arguments):
-    print('Вход в поток')
     global result
-    while not stop_event.is_set():
+    print('Вход в поток обучения')
+    try:
         result = main.main(mode, arguments)
-        return result
+    except Exception as e:
+        print(f"Ошибка в потоке обучения: {e}")
+    print('Обучение завершено')
+
 
 while True:
     data, addr = sock.recvfrom(BUFFER_SIZE)
@@ -71,30 +77,34 @@ while True:
     else:
         mode, arguments = message[0], [' ']
     print(mode, arguments)
+
     try:
         import main
         if mode in COMMANDS:
-            if mode != 'train' and mode != 'stop': 
+            if mode == 'train':
+                # Запускаем обучение в отдельном потоке
+                stop_event.clear()
+                training_thread = threading.Thread(target=train_model, args=(mode, arguments))
+                training_thread.start()
+                response = f"OK: Обучение запущено в фоновом режиме"
+            elif mode == 'stop':
+                # Останавливаем обучение
+                if training_thread and training_thread.is_alive():
+                    stop_event.set()
+                    training_thread.join()
+                    response = f"OK: Обучение остановлено"
+                else:
+                    response = f"Error: Нет активного процесса обучения"
+            else:
+                # Выполняем другие команды
                 exit_code = main.main(mode, arguments)
                 if exit_code != 0:
                     response = f"Error: {message} {exit_code}"
-                else:
-                    response = f"OK: {message}"
-            else:
-                stop_event = threading.Event()
-                training_thread = threading.Thread(target=train_model(mode, arguments), args=(stop_event,), daemon=True)
-                training_thread.start()
-                if mode == 'stop':
-                    stop_event.set()
-                    training_thread.join()
-                    print('Обучение остановлено командой stop')
-                if result != 0:
-                    response = f"Error: {message} {result}"
                 else:
                     response = f"OK: {message}"
         else:
             response = "Unknown command"
     except Exception as e:
         print(str(traceback.format_exc()))
-        response = 'Программа закончилась с какой то ошибкой, смотреть лог'
+        response = 'Программа завершилась с ошибкой, смотреть лог'
     sock.sendto(response.encode("utf-8"), addr)
