@@ -3,7 +3,7 @@ import socket
 import sys
 from pathlib import Path
 from datetime import datetime
-
+import traceback
  
 PORT = 4567
 BUFFER_SIZE = 1024
@@ -18,6 +18,7 @@ COMMANDS = {
     "test": "test mode",
     "train": "train mode",
     "rotate": "rotate log mode",
+    "raiseerr":"raise error mode",
     "extract":"extract archive mode",
     "testconnect":"test connection with server mode"
 }
@@ -63,11 +64,13 @@ while True:
     try:
         import main
         if mode in COMMANDS:
-            main.main(mode, arguments)
-            response = f"OK: {message}"
+            exit_code = main.main(mode, arguments)
+            if exit_code != 0:
+                response = f"Error: {exit_code}"
+            else:
+                response = f"OK: {message}"
         else:
             response = "Unknown command"
     except Exception as e:
-        print(f'ERROR: {e}')
-        response = e
+        print(str(traceback.format_exc())
     sock.sendto(response.encode("utf-8"), addr)
