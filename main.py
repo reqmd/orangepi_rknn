@@ -23,8 +23,8 @@ MODELS_PATH = './models'
 COMMANDS = {
     'ftp': "/home/ubuntu/NAS-project/scripts/ftp.sh",
     'sendlog':"/home/ubuntu/NAS-project/scripts/sendlog.sh",
-    'sendannot':"/home/ubuntu/NAS-project/scripts/sendannot.sh",
-    'sendmodel':"/home/ubuntu/NAS-project/scripts/sendmodel.sh"
+    'sendannot':"/home/ubuntu/NAS-project/scripts/__sendannot__.sh",
+    'sendmodel':"/home/ubuntu/NAS-project/scripts/__sendmodel__.sh"
 }
 
 #Логирование принта в файл
@@ -186,8 +186,8 @@ def main(mode, arguments = None):
                 if os.path.exists(os.path.join(DATA_PATH, mode_name)):
                     modename_path = os.path.join(DATA_PATH, mode_name)
                     time = datetime.now()
-                    f_time = time.strftime("%d.%m %H.%M")
-                    model_name = f'{f_time}:{mode_name}.pth'
+                    f_time = time.strftime("%d.%m_%H.%M")
+                    model_name = f'{f_time}-{mode_name}.pth'
                     d_path = os.path.join(modename_path, 'images')
                     data = LabeledDataset(d_path)
                     timestamp_train_start = timer()
@@ -208,7 +208,7 @@ def main(mode, arguments = None):
                     models_list = os.listdir(MODELS_PATH)
                     print(models_list)
                     for model in models_list:
-                        model_name = model.split(':')
+                        model_name = model.split('-')
                         if len(model_name) < 2:
                             continue
                         if model_name[1] == f'{arguments[1]}.pth':
@@ -228,7 +228,8 @@ def main(mode, arguments = None):
             if mode_name != None:
                 models_list = os.listdir(MODELS_PATH)
                 for model in models_list:
-                    model_name = model.split(':')
+                    model_name = model.split('-')
+                    print(model_name)
                     if len(model_name) < 2:
                         continue
                     if model_name[1] == f'{mode_name}.pth':
@@ -236,7 +237,7 @@ def main(mode, arguments = None):
                     else:
                         print('Модель для такого режима не найдена\n')
                         return 'Модель для такого режима не найдена'
-                if os.path.exists(mdl):
+                if os.path.exists(os.path.join(MODELS_PATH, mdl)):
                     result = run_check_call(args=[COMMANDS[mode], mdl])
                     print(f'chech_call завершился с кодом {result}')
                     if result != 0:
