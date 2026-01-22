@@ -53,8 +53,6 @@ def softmax(x):
     return np.exp(x)/sum(np.exp(x))
 
 def __rknn__(model_name, data_root):
-    #mode == None -> просто вывод предсказанных данных
-    #mode == 'annot' -> сохраняем метки с уверенностью в классe
     np.set_printoptions(suppress=True, precision=5)
     #Загружаем модель и трассируем её
     print('НАЧАЛО ИНФЕРЕНСА')
@@ -116,9 +114,9 @@ def __rknn__(model_name, data_root):
         file.write('Имя файла | Вероятности | Предсказанный класс\n')
         for idx in range(len(data)):
             X, y = data[idx]
-            timestamp_start = timer()
             X_array = np.array(X)
             X_array = np.expand_dims(X_array, 0)
+            timestamp_start = timer()
             y_raw = rknn.inference(inputs=[X_array], data_format=['nchw'])
             timestamp_end = timer()
             probs = softmax(y_raw[0][0])
@@ -131,8 +129,8 @@ def __rknn__(model_name, data_root):
             file.write(f'{data.image_name}, [{probs[0]:.4f}, {probs[1]:.4f}], {y_pred}\n')
 
     timestamp_end_all = timer()
-    print(classification_report(y_trues, y_preds))
     print(f'Обработка изображений заняла {np.sum(time_loop)} секунд, на обработку одного изображения в среднем уходит: {np.mean(time_loop):.4f}')
+    print(f'Самая долгая обработка: {np.max(time_loop):.4f}, Самая быстрая обработка: {np.min(time_loop):.4f}')
     print(f'Полный цикл всех действий занял {timestamp_end_all - timestamp_start_all:.4f} секунд')
 
 def timer():

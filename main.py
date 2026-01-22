@@ -87,13 +87,13 @@ def main(mode, arguments = None):
     sendannot [mode_name] - команда для получения .txt файла предсказаний модели после режима test 
 
     sendmodel [mode_name] - команда для получения .pth файла модели после режима test или train
+
+    Обрабатывается вне main
+    stop - Остановка обучения (sudo systemctl restart u.service)
     '''
-    print('Успешный импорт')
-    print(f'Получены следующие аргументы:')
     print(f'Mode: {mode}')
     mode_name = arguments[0]
     print(f'ModeName: {mode_name}')
-    print(f'Other Args: {arguments[1:]}')
     
     match mode:
         case 'ftp':

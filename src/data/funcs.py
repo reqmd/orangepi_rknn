@@ -19,7 +19,7 @@ def solve_imbalance(data):
     print(f'Кол-во изображений в каждом классе: {class_counts}')
     class_weights = 1. / class_counts
     sample_weights = class_weights[labels]
-    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=int(np.min(class_counts) * len(class_counts)), replacement=False)
+    sampler = WeightedRandomSampler(weights=sample_weights, num_samples= len(class_weights), replacement=True)
     return sampler
 
 def train_test_split(data, resolution, test_size=0.25):
