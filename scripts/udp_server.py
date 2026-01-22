@@ -96,7 +96,7 @@ while True:
                     if "all" in line and "%idle" in line:
                         print(line)
                         idle = line.split()[-1]
-                        if 100 - float(edle) > 75:
+                        if 100 - float(idle) > 75:
                             response = f'OK: {mode} BUSY'
                         else:
                             response = f'OK: {mode} IDLE'
