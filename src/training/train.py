@@ -40,51 +40,55 @@ def __train__(data, model_name,
     
     total_loss = []
     f1_best = 0
-
-    print('Начат цикл обучения:')
-    for epoch in range(epochs):
-        train_loss = []
-        model.train()
-        for X, y in train_loader:
-            X = X.to(device)
-            y = y.to(device)
-            y_pred = model(X)
-            optim.zero_grad()
-            loss = loss_fn(y_pred, y)
-            loss.backward()
-            optim.step()
-            train_loss.append(loss.cpu().detach().numpy())
-        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {np.mean(train_loss)}')
-    
-        test_loss = []
-        y_preds = []
-        y_trues = []
-        model.eval()
-        for X, y in val_loader:
-            X = X.to(device)
-            y = y.to(device)
-            y_trues.extend(y.cpu().numpy())
-            y_pred = model(X).to(device)
-            val_loss = loss_fn(y_pred, y)
-            test_loss.append(val_loss.cpu().detach().numpy())
-            y_pred = torch.argmax(y_pred, dim=1)
-            y_preds.extend(y_pred.cpu().numpy())
-
-        total_loss.append(np.mean(test_loss))
-        f1 = f1_score(y_trues, y_preds, average='weighted')
-        print(f'F1: {f1:.6f}, Test Loss {np.mean(test_loss)}\n')
-
-        if estop.step(np.mean(test_loss)) == 1:
-            break
+    with open(os.path.join('/data', model_name, 'annotations', 'result_train_annot.txt')) as file:
+        print('Начат цикл обучения:')
+        for epoch in range(epochs):
+            train_loss = []
+            model.train()
+            for X, y in train_loader:
+                X = X.to(device)
+                y = y.to(device)
+                y_pred = model(X)
+                optim.zero_grad()
+                loss = loss_fn(y_pred, y)
+                loss.backward()
+                optim.step()
+                train_loss.append(loss.cpu().detach().numpy())
+            print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {np.mean(train_loss)}')
+            file.write(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {np.mean(train_loss)}')
         
-        if f1 >= f1_best:
-            f1_best = f1
-            f1_best_epoch = epoch
-            model_state_dict = model.state_dict()
+            test_loss = []
+            y_preds = []
+            y_trues = []
+            model.eval()
+            for X, y in val_loader:
+                X = X.to(device)
+                y = y.to(device)
+                y_trues.extend(y.cpu().numpy())
+                y_pred = model(X).to(device)
+                val_loss = loss_fn(y_pred, y)
+                test_loss.append(val_loss.cpu().detach().numpy())
+                y_pred = torch.argmax(y_pred, dim=1)
+                y_preds.extend(y_pred.cpu().numpy())
 
-    save_model(model_state_dict, os.path.join(MODELS_PATH, model_name))
-    print(f'Лучшая метрика была достигнута на {f1_best_epoch+1} эпохе, значение f1 {f1_best:.6f}')
-    print(f'Модель сохранена {os.path.join(MODELS_PATH, model_name)}')
-    if use_for_hyperparams == True:
-        return f1_best
+            total_loss.append(np.mean(test_loss))
+            f1 = f1_score(y_trues, y_preds, average='weighted')
+            print(f'F1: {f1:.6f}, Test Loss {np.mean(test_loss)}\n')
+            file.write(f'F1: {f1:.6f}, Test Loss {np.mean(test_loss)}\n')
+
+            if estop.step(np.mean(test_loss)) == 1:
+                break
+            
+            if f1 >= f1_best:
+                f1_best = f1
+                f1_best_epoch = epoch
+                model_state_dict = model.state_dict()
+
+        save_model(model_state_dict, os.path.join(MODELS_PATH, model_name))
+        print(f'Лучшая метрика была достигнута на {f1_best_epoch+1} эпохе, значение f1 {f1_best:.6f}')
+        print(f'Модель сохранена {os.path.join(MODELS_PATH, model_name)}')
+        file.write(f'Лучшая метрика была достигнута на {f1_best_epoch+1} эпохе, значение f1 {f1_best:.6f}\n')
+        file.write(f'Модель сохранена {os.path.join(MODELS_PATH, model_name)}')
+        if use_for_hyperparams == True:
+            return f1_best
     

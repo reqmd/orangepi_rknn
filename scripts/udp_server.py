@@ -12,10 +12,11 @@ BUFFER_SIZE = 1024
 
 COMMANDS = {
     'stop':'abnormal stop mode',
-    'ftp': "/home/ubuntu/NAS-project/scripts/ftp.sh",
     'sendlog':"/home/ubuntu/NAS-project/scripts/sendlog.sh",
-    'sendannot':"/home/ubuntu/NAS-project/scripts/sendannot.sh",
-    'sendmodel':"/home/ubuntu/NAS-project/scripts/sendmodel.sh",
+    'sendannot':"/home/ubuntu/NAS-project/scripts/__sendannot__.sh",
+    'sendmodel':"/home/ubuntu/NAS-project/scripts/__sendmodel__.sh",
+    'sendresult':'/home/ubuntu/NAS-project/scripts/__sendresult__.sh',
+    "copy":"copy mode",
     "new": "new mode",
     "delete": "delete mode",
     "test": "test mode",

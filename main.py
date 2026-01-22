@@ -24,7 +24,8 @@ COMMANDS = {
     'ftp': "/home/ubuntu/NAS-project/scripts/ftp.sh",
     'sendlog':"/home/ubuntu/NAS-project/scripts/sendlog.sh",
     'sendannot':"/home/ubuntu/NAS-project/scripts/__sendannot__.sh",
-    'sendmodel':"/home/ubuntu/NAS-project/scripts/__sendmodel__.sh"
+    'sendmodel':"/home/ubuntu/NAS-project/scripts/__sendmodel__.sh",
+    'sendresult':'/home/ubuntu/NAS-project/scripts/__sendresult__.sh'
 }
 
 #Логирование принта в файл
@@ -72,21 +73,22 @@ def main(mode, arguments = None):
     new [mode_name] - создание нового режима с названием mode_name
 
     delete [mode_name] - удаление существующего режима mode_name
-     
-    extract [mode_name] - извлечение архива и преобразование его в набор данных для режима mode_name
-    
-    train [mode_name, train_mode, ... ] - тренировка модели на наборе данных mode_name с режимом работы train_mode
 
-    test [mode_name, model_name, ...] - тестирование модели на наборе данных mode_name с режимом работы test_mode 
+    copy [old_mode_name, new_mode_name] - копирование режима old_mode_name для получения нового new_mode_name
+    
+    train [mode_name, ... ] - тренировка модели на наборе данных mode_name с режимом работы train_mode
+
+    test [mode_name, model_name, ...] - тестирование модели на наборе данных mode_name с использованием модели model_name
 
     Режимы, которые обрабатываются через .sh скрипты
-    ftp None - команда для скачивания архива .zip из папки download
-
     sendlog None - команда для получения .log файла работы сервера
 
     sendannot [mode_name] - команда для получения .txt файла предсказаний модели после режима test 
 
     sendmodel [mode_name] - команда для получения .pth файла модели после режима test или train
+
+    sendresult [mode_name] - команда для получения результатов работы последнего цикла обучения для режима mode_name
+    train будет записывать результат работы в result_train_annot.txt
 
     Обрабатывается вне main
     stop - Остановка обучения (sudo systemctl restart u.service)
@@ -96,10 +98,39 @@ def main(mode, arguments = None):
     print(f'ModeName: {mode_name}')
     
     match mode:
+
+        case 'sendresult':
+            if mode_name != None:
+                annot_root = os.path.join(DATA_PATH, mode_name, 'annotations')
+                if os.path.exists(annot_root):
+                    result = run_check_call(args=[COMMANDS[mode], annot_root])
+                    print(f'chech_call завершился с кодом {result}')
+                    if result != 0:
+                        return f'Программа завершилась с ошибкой {result}'
+                else:
+                    print('Папки аннотаций не существует\n')
+                    return 'Папки аннотаций не существует'
+            else:
+                print('Название режима отсутствует\n')
+                return 'Название режима отсутствует'
             
         case 'sendlog':
             result = run_command(COMMANDS[mode])
             print(result)
+
+        case 'copy':
+            if mode_name != None:
+                new_mode_name = arguments[1]
+                if new_mode_name != None:
+                    shutil.copytree(os.path.join(DATA_PATH, mode_name), os.path.join(DATA_PATH, new_mode_name))
+                    print(f'Режим {mode_name} скопирован в {new_mode_name} в {os.path.join(DATA_PATH, new_mode_name)}')
+                    return f'Режим {mode_name} скопирован в {new_mode_name} в {os.path.join(DATA_PATH, new_mode_name)}'
+                else:
+                    print('Название нового режима отсутствует\n')
+                    return 'Название нового режима отсутствует'
+            else:
+                print('Название режима отсутствует\n')
+                return 'Название режима отсутствует'
 
         case 'new':
             if mode_name != None:
@@ -110,8 +141,8 @@ def main(mode, arguments = None):
                     os.mkdir(os.path.join(modename_path, 'annotations'))
                     print(f'Режим {mode_name} был успешно создан')
                 else:
-                    print('Режим уже существует, воспользуйтесь delete и создайте режим заново\n')
-                    return 'Режим уже существует, воспользуйтесь delete и создайте режим заново'
+                    print('Режим уже существует\n')
+                    return 'Режим уже существует'
                 
                 #скачивание архива
                 result = run_command(COMMANDS[mode])
