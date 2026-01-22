@@ -96,10 +96,7 @@ def main(mode, arguments = None):
     print(f'ModeName: {mode_name}')
     
     match mode:
-        case 'ftp':
-            result = run_command(COMMANDS[mode])
-            print(result)
-
+            
         case 'sendlog':
             result = run_command(COMMANDS[mode])
             print(result)
@@ -115,29 +112,12 @@ def main(mode, arguments = None):
                 else:
                     print('Режим уже существует, воспользуйтесь delete и создайте режим заново\n')
                     return 'Режим уже существует, воспользуйтесь delete и создайте режим заново'
-            else:
-                print('Название режима отсутствует\n')
-                return 'Название режима отсутствует'
-
-        case 'delete':
-            if mode_name != None:
-                if os.path.exists(os.path.join(DATA_PATH, mode_name)):
-                    modename_path = os.path.join(DATA_PATH, mode_name)
-                    shutil.rmtree(modename_path)
-                    print(f'Режим {mode_name} удален')
-                else:
-                    print('Режим не существует\n')
-                    return 'Режим не существует'
-            else:
-                print('Название режима отсутствует\n')
-                return 'Название режима отсутствует'
-
-        case 'rotate':
-            with open (LOG_FILE, 'w') as f:
-                print(f'Лог-файл {LOG_FILE} успешно очищен')
-
-        case 'extract':
-            if mode_name != None:
+                
+                #скачивание архива
+                result = run_command(COMMANDS[mode])
+                print(result)
+                
+                #преобразование архива в набор данных
                 if os.listdir(TARS_PATH) == []:
                     print('В папке нет архива\n')
                     return 'В папке нет архива'
@@ -177,6 +157,23 @@ def main(mode, arguments = None):
             else:
                 print('Название режима отсутствует\n')
                 return 'Название режима отсутствует'
+
+        case 'delete':
+            if mode_name != None:
+                if os.path.exists(os.path.join(DATA_PATH, mode_name)):
+                    modename_path = os.path.join(DATA_PATH, mode_name)
+                    shutil.rmtree(modename_path)
+                    print(f'Режим {mode_name} удален')
+                else:
+                    print('Режим не существует\n')
+                    return 'Режим не существует'
+            else:
+                print('Название режима отсутствует\n')
+                return 'Название режима отсутствует'
+
+        case 'rotate':
+            with open (LOG_FILE, 'w') as f:
+                print(f'Лог-файл {LOG_FILE} успешно очищен')
 
         case 'testconnect':
             print('Проверка на успешное соединение к серверу\n')
