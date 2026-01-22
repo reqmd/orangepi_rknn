@@ -86,11 +86,10 @@ while True:
             if mode == 'status':
                 stat = subprocess.run(
                           ["mpstat", "1", "1"],
-                          stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE,
+                          check = True,
+                          shell = True,
                           text=True
                       )              
-                      # Ищем строку с процентом бездействия CPU
                 lines = stat.stdout.split('\n')
                 for line in lines:
                     if "all" in line and "%idle" in line:
