@@ -86,13 +86,15 @@ while True:
                 stop_event.clear()
                 training_thread = threading.Thread(target=train_model, args=(mode, arguments))
                 training_thread.start()
-                response = f"OK: Обучение запущено в фоновом режиме"
+                response = f'OK: {message}'
             elif mode == 'stop':
                 # Останавливаем обучение
                 if training_thread and training_thread.is_alive():
+                    response = f"OK: {message} Обучение остановлено"
+                    sock.sendto(response.encode("utf-8"), addr)
+                    subprocess.run(['sudo', 'systemctl', 'restart', 'u.service'], check = True)
                     stop_event.set()
                     training_thread.join()
-                    response = f"OK: Обучение остановлено"
                 else:
                     response = f"Error: Нет активного процесса обучения"
             else:
