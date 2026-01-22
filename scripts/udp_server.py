@@ -11,6 +11,7 @@ PORT = 4567
 BUFFER_SIZE = 1024
 
 COMMANDS = {
+    'status':'status train mode',
     'stop':'abnormal stop mode',
     'sendlog':"/home/ubuntu/NAS-project/scripts/sendlog.sh",
     'sendannot':"/home/ubuntu/NAS-project/scripts/__sendannot__.sh",
@@ -82,16 +83,33 @@ while True:
     try:
         import main
         if mode in COMMANDS:
-            if mode == 'train':
+            if mode == 'status':
+                stat = subprocess.run(
+                          ["mpstat", "1", "1"],
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
+                          text=True
+                      )              
+                      # Ищем строку с процентом бездействия CPU
+                lines = stat.stdout.split('\n')
+                for line in lines:
+                    if "all" in line and "%idle" in line:
+                        print(line)
+                        idle = line.split()[-1]
+                        if 100 - float(edle) > 75:
+                            response = f'OK: {mode} BUSY'
+                        else:
+                            response = f'OK: {mode} IDLE'
+            elif mode == 'train':
                 # Запускаем обучение в отдельном потоке
                 stop_event.clear()
                 training_thread = threading.Thread(target=train_model, args=(mode, arguments))
                 training_thread.start()
-                response = f'OK: {message}'
+                response = f'OK: {mode}'
             elif mode == 'stop':
                 # Останавливаем обучение
                 if training_thread and training_thread.is_alive():
-                    response = f"OK: {message} Обучение остановлено"
+                    response = f"OK: {mode} Обучение остановлено"
                     sock.sendto(response.encode("utf-8"), addr)
                     subprocess.run(['sudo', 'systemctl', 'restart', 'u.service'], check = True)
                     stop_event.set()
@@ -102,12 +120,12 @@ while True:
                 # Выполняем другие команды
                 exit_code = main.main(mode, arguments)
                 if exit_code != 0:
-                    response = f"Error: {message} {exit_code}"
+                    response = f"Error: {mode} {exit_code}"
                 else:
-                    response = f"OK: {message}"
+                    response = f"OK: {mode}"
         else:
-            response = "Unknown command"
+            response = f"Unknown command: {mode}"
     except Exception as e:
         print(str(traceback.format_exc()))
-        response = 'Программа завершилась с ошибкой, смотреть лог'
+        response = f'Traceback: {mode}'
     sock.sendto(response.encode("utf-8"), addr)

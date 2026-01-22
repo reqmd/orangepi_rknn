@@ -19,7 +19,7 @@ log = mylogger(LOG_FILE, PRINT_TO_FILE)
 print = log.printml
 
 
-def __train__(data, model_name,
+def __train__(data, model_name, modename_path,
               use_for_hyperparams = False):
     prep_params = load_yaml('configs/static/prep_configs/st_prep_config.yaml')
     model_params = load_yaml('configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml')
@@ -40,7 +40,7 @@ def __train__(data, model_name,
     
     total_loss = []
     f1_best = 0
-    with open(os.path.join('/data', model_name, 'annotations', 'result_train_annot.txt')) as file:
+    with open(os.path.join(modename_path, 'annotations', 'result_train_annot.txt'), 'w') as file:
         print('Начат цикл обучения:')
         for epoch in range(epochs):
             train_loss = []

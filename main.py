@@ -145,7 +145,7 @@ def main(mode, arguments = None):
                     return 'Режим уже существует'
                 
                 #скачивание архива
-                result = run_command(COMMANDS[mode])
+                result = run_command(COMMANDS['ftp'])
                 print(result)
                 
                 #преобразование архива в набор данных
@@ -219,7 +219,7 @@ def main(mode, arguments = None):
                     d_path = os.path.join(modename_path, 'images')
                     data = LabeledDataset(d_path)
                     timestamp_train_start = timer()
-                    __train__(data=data, model_name = model_name)
+                    __train__(data=data, model_name = model_name, modename_path = modename_path)
                     timestamp_train_end = timer()
                     print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
                 else:
