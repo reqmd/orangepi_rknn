@@ -25,7 +25,7 @@ COMMANDS = {
     'sendlog':"/home/ubuntu/NAS-project/scripts/sendlog.sh",
     'sendannot':"/home/ubuntu/NAS-project/scripts/__sendannot__.sh",
     'sendmodel':"/home/ubuntu/NAS-project/scripts/__sendmodel__.sh",
-    'sendresult':'/home/ubuntu/NAS-project/scripts/__sendresult__.sh'
+    'sendresult':'/home/ubuntu/NAS-project/scripts/__sendresult__.sh',
 }
 
 #Логирование принта в файл
@@ -78,7 +78,7 @@ def main(mode, arguments = None):
     
     train [mode_name, ... ] - тренировка модели на наборе данных mode_name с режимом работы train_mode
 
-    test [mode_name, model_name, ...] - тестирование модели на наборе данных mode_name с использованием модели model_name
+    test [mode_name, ...] - тестирование модели на наборе данных mode_name 
 
     Режимы, которые обрабатываются через .sh скрипты
     sendlog None - команда для получения .log файла работы сервера
@@ -139,6 +139,7 @@ def main(mode, arguments = None):
                     os.mkdir(modename_path)
                     os.mkdir(os.path.join(modename_path, 'images'))
                     os.mkdir(os.path.join(modename_path, 'annotations'))
+                    os.mkdir(os.path.join(modename_path, 'test'))
                     print(f'Режим {mode_name} был успешно создан')
                 else:
                     print('Режим уже существует\n')
@@ -232,7 +233,7 @@ def main(mode, arguments = None):
         case 'test':
             if mode_name != None:
                 if os.path.exists(os.path.join(DATA_PATH, mode_name)):
-                    modename_path = os.path.join(DATA_PATH, mode_name)
+                    test_path = os.path.join(DATA_PATH, mode_name, 'test')
                     models_list = os.listdir(MODELS_PATH)
                     print(models_list)
                     for model in models_list:
@@ -243,7 +244,47 @@ def main(mode, arguments = None):
                             inf_model = os.path.join(MODELS_PATH, model)
                         else:
                             print('Модель для такого режима не найдена\n')
-                    __rknn__(model_name=inf_model, data_root=modename_path)
+                            
+                    #скачивание архива
+                    result = run_command(COMMANDS['ftp'])
+                    print(result)
+                    
+                    if os.listdir(TARS_PATH) == []:
+                        print('В папке нет архива\n')
+                        return 'В папке нет архива'
+                    else:
+                        archive = os.listdir(TARS_PATH)[0]
+                        mode_path = os.path.join(DATA_PATH, mode_name, 'test')
+                        command = ["/usr/bin/7z", "x", os.path.join(TARS_PATH, archive), f"-o{mode_path}", "-y"]
+                        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        # извлекли архив
+                        # запись работы 7z
+                        # print(result.stdout.decode("utf-8"))
+                        # print(result.stderr.decode("utf-8"))
+                        if os.listdir(mode_path) != [] and result.returncode == 0:
+                            print(f'Архив успешно распакован и находится в {mode_path}')
+                            # удаление архива после работы с ним
+                            os.remove(os.path.join(TARS_PATH, archive))
+                        else:
+                            print('Не удалось распаковать архив или архива нет в нужной папке\n')
+                            return 'Не удалось распаковать архив или архива нет в нужной папке'
+
+                    # преобразование содержимого архива в набор данных
+                    classes = os.listdir(mode_path)
+                    for cls in classes:
+                        cls_path = os.path.join(mode_path, cls)
+                        current_mode = os.stat(cls_path).st_mode
+                        new_mode = current_mode | stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
+                        os.chmod(cls_path, new_mode)
+                        cameras_list = os.listdir(cls_path)
+                        for camera_num in cameras_list:
+                            camera_path = os.path.join(cls_path, camera_num)
+                            images_list = os.listdir(camera_path)
+                            for image in images_list:
+                                os.rename(os.path.join(cls_path, camera_num, image), f'{cls_path}/{camera_num}_{image}')
+                            shutil.rmtree(camera_path)
+                        
+                    __rknn__(model_name=inf_model, data_root=mode_path)
                     
                 else:
                     print('Режима не существует\n')
@@ -293,10 +334,6 @@ def main(mode, arguments = None):
         case 'raiseerr':
             print('Вызов примера ошибки\n')
             return 'Вызов примера ошибки'
-
-        case 'stop':
-            print('Аваройное завершение обучения')
-            subprocess.run(['sudo', 'systemctl', 'restart', 'u.service'], check = True)
 
         case _:
             print(f'Получен неизвестный режим {mode}\n')

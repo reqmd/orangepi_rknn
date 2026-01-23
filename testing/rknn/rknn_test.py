@@ -33,7 +33,7 @@ def export_pytorch_model(model_name):
     return rknn_name
 
 def generate_txt(data_root):
-    images_root = os.path.join(data_root, 'images')
+    images_root = data_root
     folders = os.listdir(images_root) #заведомо должны понимать, что папка должна быть одна
     print(folders)
     if len(folders) != 1:
