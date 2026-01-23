@@ -20,3 +20,4 @@ annotations/
 *.txt
 *.tar
 /tars
+/data

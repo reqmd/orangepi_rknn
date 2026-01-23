@@ -5,7 +5,8 @@ from pathlib import Path
 from datetime import datetime
 import traceback
 import threading
-import subprocess 
+import subprocess
+import struct
 
 PORT = 4567
 BUFFER_SIZE = 1024
@@ -23,9 +24,23 @@ COMMANDS = {
     "test": "test mode",
     "train": "train mode",
     "rotate": "rotate log mode",
-    "raiseerr":"raise error mode",
-    "extract":"extract archive mode",
     "testconnect":"test connection with server mode"
+}
+
+BYTES_TO_COMMAND = {
+    0:'testconnect',
+    1:'rotate',
+    2:'new',
+    3:'delete',
+    4:'copy',
+    5:'train',
+    6:'test',
+    7:'sendlog',
+    8:'sendannot',
+    9:'sendmodel',
+    10:'sendresult',
+    11:'stop',
+    12:'status',
 }
 
 class mylogger(object):
@@ -73,13 +88,17 @@ def train_model(mode, arguments):
 
 while True:
     data, addr = sock.recvfrom(BUFFER_SIZE)
-    message = data.decode("utf-8").strip().lower().split(' ')
-    if len(message) > 1:
-        mode, arguments = message[0], message[1:]
+    print(data)
+    if len(data) == 1:
+        mode, arguments = BYTES_TO_COMMAND[struct.unpack('B', data[0:1])[0]], [' ']
+    elif len(data) == 3:
+        mode, arguments = BYTES_TO_COMMAND[struct.unpack('B', data[0:1])[0]], [str(struct.unpack('<H', data[1:3])[0])]
+    elif len(data) == 5:
+        mode, arguments = BYTES_TO_COMMAND[struct.unpack('B', data[0:1])[0]], [str(struct.unpack('<H', data[1:3])[0]), str(struct.unpack('<H', data[3:5])[0])]
     else:
-        mode, arguments = message[0], [' ']
-    print(mode, arguments)
-
+        message = 'Некоректное число байт'
+        sock.sendto(message.encode('utf-8'), addr)
+    print(mode, arguments, type(mode), type(arguments))
     try:
         import main
         if mode in COMMANDS:
@@ -98,7 +117,7 @@ while True:
             elif mode == 'train':
                 # Запускаем обучение в отдельном потоке
                 stop_event.clear()
-                training_thread = threading.Thread(target=train_model, args=(mode, arguments))
+                training_thread = threading.Thread(target=train_model, args=(mode,arguments))
                 training_thread.start()
                 response = f'OK: {mode}'
             elif mode == 'stop':

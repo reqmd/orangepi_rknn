@@ -58,7 +58,7 @@ device = device_config(params_roots=params_to_modify)
 print(f'Будет использоваться {device}')
 
 # Основной цикл
-def main(mode, arguments = None):
+def main(mode, arguments):
     '''Основная функция отвечающая за выбор режима работы программы
 
     Ключевые аргументы:
@@ -124,7 +124,6 @@ def main(mode, arguments = None):
                 if new_mode_name != None:
                     shutil.copytree(os.path.join(DATA_PATH, mode_name), os.path.join(DATA_PATH, new_mode_name))
                     print(f'Режим {mode_name} скопирован в {new_mode_name} в {os.path.join(DATA_PATH, new_mode_name)}')
-                    return f'Режим {mode_name} скопирован в {new_mode_name} в {os.path.join(DATA_PATH, new_mode_name)}'
                 else:
                     print('Название нового режима отсутствует\n')
                     return 'Название нового режима отсутствует'
@@ -234,13 +233,15 @@ def main(mode, arguments = None):
             if mode_name != None:
                 if os.path.exists(os.path.join(DATA_PATH, mode_name)):
                     test_path = os.path.join(DATA_PATH, mode_name, 'test')
+                    shutil.rmtree(test_path)
+                    os.mkdir(test_path)
                     models_list = os.listdir(MODELS_PATH)
                     print(models_list)
                     for model in models_list:
                         model_name = model.split('-')
                         if len(model_name) < 2:
                             continue
-                        if model_name[1] == f'{arguments[1]}.pth':
+                        if model_name[1] == f'{arguments[0]}.pth':
                             inf_model = os.path.join(MODELS_PATH, model)
                         else:
                             print('Модель для такого режима не найдена\n')
@@ -254,6 +255,7 @@ def main(mode, arguments = None):
                         return 'В папке нет архива'
                     else:
                         archive = os.listdir(TARS_PATH)[0]
+                        main_path = os.path.join(DATA_PATH, mode_name)
                         mode_path = os.path.join(DATA_PATH, mode_name, 'test')
                         command = ["/usr/bin/7z", "x", os.path.join(TARS_PATH, archive), f"-o{mode_path}", "-y"]
                         result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -284,7 +286,7 @@ def main(mode, arguments = None):
                                 os.rename(os.path.join(cls_path, camera_num, image), f'{cls_path}/{camera_num}_{image}')
                             shutil.rmtree(camera_path)
                         
-                    __rknn__(model_name=inf_model, data_root=mode_path)
+                    __rknn__(model_name=inf_model, data_root=main_path)
                     
                 else:
                     print('Режима не существует\n')

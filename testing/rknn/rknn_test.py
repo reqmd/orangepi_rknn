@@ -34,14 +34,14 @@ def export_pytorch_model(model_name):
 
 def generate_txt(data_root):
     images_root = data_root
-    folders = os.listdir(images_root) #заведомо должны понимать, что папка должна быть одна
+    folders = os.listdir(os.path.join(images_root, 'test')) #заведомо должны понимать, что папка должна быть одна
     print(folders)
     if len(folders) != 1:
         print('Папка не одна или её нет, поэтому невозможно сделать тестирование')
         return 1
     else:
         folder = folders[0]
-        i_root = os.path.join(images_root, folder)
+        i_root = os.path.join(images_root, 'test', folder)
         images_list = os.listdir(i_root)
         with open(os.path.join(data_root, 'annotations', 'dataset_annot.txt'), 'w') as file:
             for image in images_list:
@@ -108,7 +108,7 @@ def __rknn__(model_name, data_root):
     time_loop = []
     y_preds = []
     y_trues = []
-    annot_root = os.path.join(data_root, 'annotations', 'result_annot.txt')
+    annot_root = os.path.join(data_root, 'annotations', 'result_test_annot.txt')
     with open(annot_root, 'w') as file:
         file.write('Начало записи аннотаций к разметке\n')
         file.write('Имя файла | Вероятности | Предсказанный класс\n')
