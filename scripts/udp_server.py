@@ -86,19 +86,15 @@ while True:
             if mode == 'status':
                 stat = subprocess.run(
                           ["mpstat", "1", "1"],
-                          check = True,
-                          shell = True,
-                          text=True
-                      )              
-                lines = stat.stdout.split('\n')
-                for line in lines:
-                    if "all" in line and "%idle" in line:
-                        print(line)
-                        idle = line.split()[-1]
-                        if 100 - float(idle) > 75:
-                            response = f'OK: {mode} BUSY'
-                        else:
-                            response = f'OK: {mode} IDLE'
+                          capture_output = True
+                      )
+                lines = stat.stdout.decode('utf-8').split('\n')
+                line = lines[4].split(' ')[-1]
+                idle =  float(line)
+                if 100 - idle > 75:
+                    response = f'OK: {mode} BUSY'
+                else:
+                    response = f'OK: {mode} IDLE'
             elif mode == 'train':
                 # Запускаем обучение в отдельном потоке
                 stop_event.clear()

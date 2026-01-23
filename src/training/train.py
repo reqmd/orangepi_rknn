@@ -55,7 +55,7 @@ def __train__(data, model_name, modename_path,
                 optim.step()
                 train_loss.append(loss.cpu().detach().numpy())
             print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {np.mean(train_loss)}')
-            file.write(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {np.mean(train_loss)}')
+            file.write(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {np.mean(train_loss)}\n')
         
             test_loss = []
             y_preds = []
