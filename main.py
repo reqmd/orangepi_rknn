@@ -83,8 +83,6 @@ def main(mode, arguments):
     Режимы, которые обрабатываются через .sh скрипты
     sendlog None - команда для получения .log файла работы сервера
 
-    sendannot [mode_name] - команда для получения .txt файла предсказаний модели после режима test 
-
     sendmodel [mode_name] - команда для получения .pth файла модели после режима test или train
 
     sendresult [mode_name] - команда для получения результатов работы последнего цикла обучения для режима mode_name
@@ -287,6 +285,14 @@ def main(mode, arguments):
                             shutil.rmtree(camera_path)
                         
                     __rknn__(model_name=inf_model, data_root=main_path)
+                    if os.path.exists(annot_root):
+                        result = run_check_call(args=[COMMANDS['sendannot'], annot_root])
+                        print(f'chech_call завершился с кодом {result}')
+                        if result != 0:
+                            return f'Программа завершилась с ошибкой {result}'
+                    else:
+                        print('Папки аннотаций не существует\n')
+                        return 'Папки аннотаций не существует'
                     
                 else:
                     print('Режима не существует\n')
@@ -317,25 +323,6 @@ def main(mode, arguments):
             else:
                 print('Название режима отсутствует\n')
                 return 'Название режима отсутствует'
-
-        case 'sendannot':
-            if mode_name != None:
-                annot_root = os.path.join(DATA_PATH, mode_name, 'annotations')
-                if os.path.exists(annot_root):
-                    result = run_check_call(args=[COMMANDS[mode], annot_root])
-                    print(f'chech_call завершился с кодом {result}')
-                    if result != 0:
-                        return f'Программа завершилась с ошибкой {result}'
-                else:
-                    print('Папки аннотаций не существует\n')
-                    return 'Папки аннотаций не существует'
-            else:
-                print('Название режима отсутствует\n')
-                return 'Название режима отсутствует'
-
-        case 'raiseerr':
-            print('Вызов примера ошибки\n')
-            return 'Вызов примера ошибки'
 
         case _:
             print(f'Получен неизвестный режим {mode}\n')

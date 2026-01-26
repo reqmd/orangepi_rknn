@@ -15,7 +15,6 @@ COMMANDS = {
     'status':'status train mode',
     'stop':'abnormal stop mode',
     'sendlog':"/home/ubuntu/NAS-project/scripts/sendlog.sh",
-    'sendannot':"/home/ubuntu/NAS-project/scripts/__sendannot__.sh",
     'sendmodel':"/home/ubuntu/NAS-project/scripts/__sendmodel__.sh",
     'sendresult':'/home/ubuntu/NAS-project/scripts/__sendresult__.sh',
     "copy":"copy mode",
@@ -36,11 +35,17 @@ BYTES_TO_COMMAND = {
     5:'train',
     6:'test',
     7:'sendlog',
-    8:'sendannot',
-    9:'sendmodel',
-    10:'sendresult',
-    11:'stop',
-    12:'status',
+    8:'sendmodel',
+    9:'sendresult',
+    10:'stop',
+    11:'status',
+}
+
+RESPONSE_TO_BYTES = {
+    0:'Ok',
+    1:'Error',
+    2:'Unknown command',
+    3:'Traceback'
 }
 
 class mylogger(object):
@@ -75,6 +80,7 @@ print = log.printml
 
 training_thread = None
 stop_event = threading.Event()
+message = ' '
 
 def train_model(mode, arguments):
     global result
@@ -95,10 +101,11 @@ while True:
         mode, arguments = BYTES_TO_COMMAND[struct.unpack('B', data[0:1])[0]], [str(struct.unpack('<H', data[1:3])[0])]
     elif len(data) == 5:
         mode, arguments = BYTES_TO_COMMAND[struct.unpack('B', data[0:1])[0]], [str(struct.unpack('<H', data[1:3])[0]), str(struct.unpack('<H', data[3:5])[0])]
-    else:
-        message = 'Некоректное число байт'
-        sock.sendto(message.encode('utf-8'), addr)
+    # else:
+    #     message = 'Некоректное число байт'
+    #     sock.sendto(message.encode('utf-8'), addr)
     print(mode, arguments, type(mode), type(arguments))
+    resp = 0
     try:
         import main
         if mode in COMMANDS:
@@ -111,20 +118,24 @@ while True:
                 line = lines[4].split(' ')[-1]
                 idle =  float(line)
                 if 100 - idle > 75:
-                    response = f'OK: {mode} BUSY'
+                    response = [resp, mode, 1]
+                    byte_data = bytes(response)
                 else:
-                    response = f'OK: {mode} IDLE'
+                    response = [resp, mode, 0]
+                    byte_data = bytes(response)
             elif mode == 'train':
                 # Запускаем обучение в отдельном потоке
                 stop_event.clear()
                 training_thread = threading.Thread(target=train_model, args=(mode,arguments))
                 training_thread.start()
-                response = f'OK: {mode}'
+                response = [resp, mode]
+                byte_data = bytes(response)
             elif mode == 'stop':
                 # Останавливаем обучение
                 if training_thread and training_thread.is_alive():
-                    response = f"OK: {mode} Обучение остановлено"
-                    sock.sendto(response.encode("utf-8"), addr)
+                    response = [resp, mode]
+                    byte_data = bytes(response)
+                    sock.sendall(byte_data)
                     subprocess.run(['sudo', 'systemctl', 'restart', 'u.service'], check = True)
                     stop_event.set()
                     training_thread.join()
@@ -134,12 +145,23 @@ while True:
                 # Выполняем другие команды
                 exit_code = main.main(mode, arguments)
                 if exit_code != 0:
-                    response = f"Error: {mode} {exit_code}"
+                    resp = 1
+                    response = [resp, mode]
+                    byte_data = bytes(response)
+                    message = exit_code
                 else:
-                    response = f"OK: {mode}"
+                    response = [resp, mode]
+                    byte_data = bytes(response)
         else:
-            response = f"Unknown command: {mode}"
+            resp = 2
+            response = [resp, mode]
+            byte_data = bytes(response)
     except Exception as e:
         print(str(traceback.format_exc()))
-        response = f'Traceback: {mode}'
-    sock.sendto(response.encode("utf-8"), addr)
+        resp = 3
+        response = [resp, mode]
+    if message == ' ':
+        sock.sendall(byte_data)
+    else:
+        sock.sendall(byte_data)
+        sock.sendto(message.encode("utf-8"), addr)
