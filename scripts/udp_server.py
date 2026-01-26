@@ -11,19 +11,19 @@ import struct
 PORT = 4567
 BUFFER_SIZE = 1024
 
-COMMANDS = {
-    'status':'status train mode',
-    'stop':'abnormal stop mode',
-    'sendlog':"/home/ubuntu/NAS-project/scripts/sendlog.sh",
-    'sendmodel':"/home/ubuntu/NAS-project/scripts/__sendmodel__.sh",
-    'sendresult':'/home/ubuntu/NAS-project/scripts/__sendresult__.sh',
-    "copy":"copy mode",
-    "new": "new mode",
-    "delete": "delete mode",
-    "test": "test mode",
-    "train": "train mode",
-    "rotate": "rotate log mode",
-    "testconnect":"test connection with server mode"
+BYTES_TO_COMMAND = {
+    0:'testconnect',
+    1:'rotate',
+    2:'new',
+    3:'delete',
+    4:'copy',
+    5:'train',
+    6:'test',
+    7:'sendlog',
+    8:'sendmodel',
+    9:'sendresult',
+    10:'stop',
+    11:'status',
 }
 
 RESPONSE_TO_BYTES = {
@@ -93,7 +93,7 @@ while True:
     resp = 0
     try:
         import main
-        if mode in COMMANDS:
+        if mode in BYTES_TO_COMMAND:
             if mode == 11:
                 stat = subprocess.run(
                           ["mpstat", "1", "1"],
