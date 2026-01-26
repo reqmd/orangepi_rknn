@@ -102,15 +102,16 @@ def main(mode, arguments, OS = 'LINUX'):
     Обрабатывается вне main
     stop - Остановка обучения (sudo systemctl restart u.service)
     '''
+    LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
+    log = mylogger(LOG_FILE, PRINT_TO_FILE)
+    print = log.printml
+    
     mode = BYTES_TO_COMMAND[mode]
     print(f'Mode: {mode}')
     mode_name = arguments[0]
     print(f'ModeName: {mode_name}')
-    if OS == 'Linux':
+    if OS == 'LINUX':
         #Логирование принта в файл
-        LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
-        log = mylogger(LOG_FILE, PRINT_TO_FILE)
-        print = log.printml
         match mode:
             case 'sendresult':
                 if mode_name != None:
@@ -162,6 +163,7 @@ def main(mode, arguments, OS = 'LINUX'):
                     print(result)
                     
                     #преобразование архива в набор данных
+                    TARS_PATH = './tars'
                     if os.listdir(TARS_PATH) == []:
                         print('В папке нет архива\n')
                         return 'В папке нет архива'

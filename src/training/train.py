@@ -50,6 +50,7 @@ def __train__(data, model_name, modename_path,
                 y = y.to(device)
                 y_pred = model(X)
                 optim.zero_grad()
+                print(y_pred, y)
                 loss = loss_fn(y_pred, y)
                 loss.backward()
                 optim.step()

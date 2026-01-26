@@ -8,7 +8,7 @@ import threading
 import subprocess
 import struct
 
-PORT = 4567
+PORT = 5001
 BUFFER_SIZE = 1024
 
 BYTES_TO_COMMAND = {
@@ -71,11 +71,12 @@ def train_model(mode, arguments):
     global result
     print('Вход в поток обучения')
     try:
-        result = main.main(mode, arguments)
+      result = main.main(mode, arguments)
+      print('Обучение завершено')
     except Exception as e:
-        print(f"Ошибка в потоке обучения: {e}")
-    print('Обучение завершено')
-
+      print(str(traceback.format_exc()))
+      resp = 3
+      response = [resp, mode]
 
 while True:
     data, addr = sock.recvfrom(BUFFER_SIZE)
