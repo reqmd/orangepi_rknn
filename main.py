@@ -106,7 +106,8 @@ def main(mode, arguments):
     Обрабатывается вне main
     stop - Остановка обучения (sudo systemctl restart u.service)
     '''
-    print(f'Mode: {BYTES_TO_COMMAND[mode]}')
+    mode = BYTES_TO_COMMAND[mode]
+    print(f'Mode: {mode}')
     mode_name = arguments[0]
     print(f'ModeName: {mode_name}')
     
