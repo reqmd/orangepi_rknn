@@ -253,6 +253,7 @@ def main(mode, arguments):
                     print(models_list)
                     for model in models_list:
                         model_name = model.split('-')
+                        print(model_name[1], f'{arguments[0]}.pth')
                         if len(model_name) < 2:
                             continue
                         if model_name[1] == f'{arguments[0]}.pth':
@@ -301,6 +302,7 @@ def main(mode, arguments):
                             shutil.rmtree(camera_path)
                         
                     __rknn__(model_name=inf_model, data_root=main_path)
+                    annot_root = os.path.join(DATA_PATH, mode_name, 'annotations')
                     if os.path.exists(annot_root):
                         result = run_check_call(args=[COMMANDS['sendannot'], annot_root])
                         print(f'chech_call завершился с кодом {result}')

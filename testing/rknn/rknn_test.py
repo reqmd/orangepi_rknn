@@ -95,7 +95,7 @@ def __rknn__(model_name, data_root):
     print('OK')
 
     print('--> Creating dataloader with batch_size=1')
-    data = LabeledDataset(os.path.join(data_root, 'images'), transform=val_transform)
+    data = LabeledDataset(os.path.join(data_root, 'test'), transform=val_transform)
     loader = dataset_into_loader(data=data, batch_size=1)
 
     print('--> Init runtime environment')
