@@ -26,21 +26,6 @@ COMMANDS = {
     "testconnect":"test connection with server mode"
 }
 
-BYTES_TO_COMMAND = {
-    0:'testconnect',
-    1:'rotate',
-    2:'new',
-    3:'delete',
-    4:'copy',
-    5:'train',
-    6:'test',
-    7:'sendlog',
-    8:'sendmodel',
-    9:'sendresult',
-    10:'stop',
-    11:'status',
-}
-
 RESPONSE_TO_BYTES = {
     0:'Ok',
     1:'Error',
@@ -96,11 +81,11 @@ while True:
     data, addr = sock.recvfrom(BUFFER_SIZE)
     print(data)
     if len(data) == 1:
-        mode, arguments = BYTES_TO_COMMAND[struct.unpack('B', data[0:1])[0]], [' ']
+        mode, arguments = struct.unpack('B', data[0:1])[0], [' ']
     elif len(data) == 3:
-        mode, arguments = BYTES_TO_COMMAND[struct.unpack('B', data[0:1])[0]], [str(struct.unpack('<H', data[1:3])[0])]
+        mode, arguments = struct.unpack('B', data[0:1])[0], [str(struct.unpack('<H', data[1:3])[0])]
     elif len(data) == 5:
-        mode, arguments = BYTES_TO_COMMAND[struct.unpack('B', data[0:1])[0]], [str(struct.unpack('<H', data[1:3])[0]), str(struct.unpack('<H', data[3:5])[0])]
+        mode, arguments = struct.unpack('B', data[0:1])[0], [str(struct.unpack('<H', data[1:3])[0]), str(struct.unpack('<H', data[3:5])[0])]
     # else:
     #     message = 'Некоректное число байт'
     #     sock.sendto(message.encode('utf-8'), addr)
@@ -109,7 +94,7 @@ while True:
     try:
         import main
         if mode in COMMANDS:
-            if mode == 'status':
+            if mode == 11:
                 stat = subprocess.run(
                           ["mpstat", "1", "1"],
                           capture_output = True
@@ -123,14 +108,14 @@ while True:
                 else:
                     response = [resp, mode, 0]
                     byte_data = bytes(response)
-            elif mode == 'train':
+            elif mode == 5:
                 # Запускаем обучение в отдельном потоке
                 stop_event.clear()
                 training_thread = threading.Thread(target=train_model, args=(mode,arguments))
                 training_thread.start()
                 response = [resp, mode]
                 byte_data = bytes(response)
-            elif mode == 'stop':
+            elif mode == 10:
                 # Останавливаем обучение
                 if training_thread and training_thread.is_alive():
                     response = [resp, mode]
@@ -140,7 +125,10 @@ while True:
                     stop_event.set()
                     training_thread.join()
                 else:
-                    response = f"Error: Нет активного процесса обучения"
+                    resp = 1
+                    response = [resp, mode]
+                    byte_data = bytes(response)
+                    message = f"Нет активного процесса обучения"
             else:
                 # Выполняем другие команды
                 exit_code = main.main(mode, arguments)

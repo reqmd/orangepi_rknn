@@ -28,6 +28,21 @@ COMMANDS = {
     'sendresult':'/home/ubuntu/NAS-project/scripts/__sendresult__.sh',
 }
 
+BYTES_TO_COMMAND = {
+    0:'testconnect',
+    1:'rotate',
+    2:'new',
+    3:'delete',
+    4:'copy',
+    5:'train',
+    6:'test',
+    7:'sendlog',
+    8:'sendmodel',
+    9:'sendresult',
+    10:'stop',
+    11:'status',
+}
+
 #Логирование принта в файл
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
 print = log.printml
@@ -91,7 +106,7 @@ def main(mode, arguments):
     Обрабатывается вне main
     stop - Остановка обучения (sudo systemctl restart u.service)
     '''
-    print(f'Mode: {mode}')
+    print(f'Mode: {BYTES_TO_COMMAND[mode]}')
     mode_name = arguments[0]
     print(f'ModeName: {mode_name}')
     
