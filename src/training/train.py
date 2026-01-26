@@ -21,8 +21,11 @@ print = log.printml
 
 def __train__(data, model_name, modename_path,
               use_for_hyperparams = False):
+    labels = [label for _, label in data]
+    class_counts = np.bincount(labels)
     prep_params = load_yaml('configs/static/prep_configs/st_prep_config.yaml')
     model_params = load_yaml('configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml')
+    model_params['num_classes'] = class_counts
     all_params = load_yaml('configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml')
 
     if isinstance(data, LabeledDataset):
