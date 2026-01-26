@@ -148,8 +148,4 @@ while True:
         print(str(traceback.format_exc()))
         resp = 3
         response = [resp, mode]
-    if message == ' ':
-        sock.sendto(byte_data, addr)
-    else:
-        sock.sendto(byte_data, addr)
-        sock.sendto(message.encode("utf-8"), addr)
+    sock.sendto(byte_data, addr)
