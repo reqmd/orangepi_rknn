@@ -41,7 +41,7 @@ def match_case(params: dict):
     keys_to_remove = ['lr', 'batch_size', 'weight_decay', 'model', 'resolution']
     for key in keys_to_remove:
         del _model_params_[key]
-
+    print(_model_params_)
     match model_name:
         case 'SP':
             model = SP(**_model_params_)

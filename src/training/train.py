@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.metrics import f1_score
 import os
 
-from src.utils.config_funcs import load_yaml
+from src.utils.config_funcs import load_yaml, save_yaml
 from src.data.dataset import LabeledDataset
 from src.data.funcs import train_test_split, dataset_into_loader
 from src.utils.early_stopping import EarlyStopping
@@ -25,8 +25,10 @@ def __train__(data, model_name, modename_path,
     class_counts = np.bincount(labels)
     prep_params = load_yaml('configs/static/prep_configs/st_prep_config.yaml')
     model_params = load_yaml('configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml')
-    model_params['num_classes'] = class_counts
+    model_params['num_classes'] = len(class_counts)
     all_params = load_yaml('configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml')
+    all_params['num_classes'] = len(class_counts)
+    save_yaml('configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml', all_params)
 
     if isinstance(data, LabeledDataset):
         train_data, val_data = train_test_split(data, resolution=all_params['resolution']) #если подали неразделенный датасет
@@ -53,7 +55,6 @@ def __train__(data, model_name, modename_path,
                 y = y.to(device)
                 y_pred = model(X)
                 optim.zero_grad()
-                print(y_pred, y)
                 loss = loss_fn(y_pred, y)
                 loss.backward()
                 optim.step()

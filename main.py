@@ -266,6 +266,7 @@ def main(mode, arguments, OS = 'LINUX'):
                         result = run_command(COMMANDS['ftp'])
                         print(result)
                         
+                        TARS_PATH = './tars'
                         if os.listdir(TARS_PATH) == []:
                             print('В папке нет архива\n')
                             return 'В папке нет архива'
