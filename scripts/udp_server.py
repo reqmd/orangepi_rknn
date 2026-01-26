@@ -120,7 +120,7 @@ while True:
                 if training_thread and training_thread.is_alive():
                     response = [resp, mode]
                     byte_data = bytes(response)
-                    sock.sendall(byte_data)
+                    sock.sendto(byte_data, addr)
                     subprocess.run(['sudo', 'systemctl', 'restart', 'u.service'], check = True)
                     stop_event.set()
                     training_thread.join()
@@ -149,7 +149,7 @@ while True:
         resp = 3
         response = [resp, mode]
     if message == ' ':
-        sock.sendall(byte_data)
+        sock.sendto(byte_data, addr)
     else:
-        sock.sendall(byte_data)
+        sock.sendto(byte_data, addr)
         sock.sendto(message.encode("utf-8"), addr)
