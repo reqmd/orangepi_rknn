@@ -12,8 +12,8 @@ from src.utils.save_load import save_model, load_model
 from logs.logger import mylogger
 
 # логирование в файл результатов обучения
-MODELS_PATH = '/home/ubuntu/NAS-project/models'
-LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
+MODELS_PATH = './models'
+LOG_FILE = './logs/udp_server_output.log'
 PRINT_TO_FILE = True
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
 print = log.printml

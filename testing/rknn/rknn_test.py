@@ -66,7 +66,7 @@ def __rknn__(model_name, data_root):
     rknn = RKNN(verbose=True)
     dataset_root = generate_txt(data_root=data_root)
 
-    train_transform, val_transform = return_transforms(resolutions=res)
+    _, val_transform = return_transforms(resolutions=res)
     print('OK')
 
     print('--> Config model')
@@ -94,9 +94,7 @@ def __rknn__(model_name, data_root):
         exit(ret)
     print('OK')
 
-    print('--> Creating dataloader with batch_size=1')
     data = LabeledDataset(os.path.join(data_root, 'test'), transform=val_transform)
-    loader = dataset_into_loader(data=data, batch_size=1)
 
     print('--> Init runtime environment')
     ret = rknn.init_runtime()
@@ -126,7 +124,7 @@ def __rknn__(model_name, data_root):
             time_loop.append(np.round(timestamp_end-timestamp_start, 4))
             y_preds.append(y_pred)
             y_trues.append(y)
-            file.write(f'{data.image_name}, [{probs[0]:.4f}, {probs[1]:.4f}], {y_pred}\n')
+            file.write(f'{data.image_name}, [{probs[0]:.4f}, {probs[1]:.4f}], {data.classes[y_pred]}\n')
 
     timestamp_end_all = timer()
     print(f'Обработка изображений заняла {np.sum(time_loop)} секунд, на обработку одного изображения в среднем уходит: {np.mean(time_loop):.4f}')

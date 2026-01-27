@@ -1,2 +1,2 @@
-device: cpu
+device: cuda
 epochs: 25

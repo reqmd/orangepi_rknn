@@ -8,7 +8,7 @@ from .dataset import TrainTestSubset
 from sklearn.model_selection import train_test_split as tts
 from logs.logger import mylogger
 
-LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
+LOG_FILE = './logs/udp_server_output.log'
 PRINT_TO_FILE = True
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
 print = log.printml
