@@ -52,7 +52,7 @@ def generate_txt(data_root):
 def softmax(x):
     return np.exp(x)/sum(np.exp(x))
 
-def __rknn__(model_name, data_root):
+def __rknn__(model_name, data_root, classes):
     np.set_printoptions(suppress=True, precision=5)
     #Загружаем модель и трассируем её
     print('НАЧАЛО ИНФЕРЕНСА')
@@ -109,7 +109,7 @@ def __rknn__(model_name, data_root):
     annot_root = os.path.join(data_root, 'annotations', 'result_test_annot.txt')
     with open(annot_root, 'w') as file:
         file.write('Начало записи аннотаций к разметке\n')
-        file.write('Имя файла | Вероятности | Предсказанный класс\n')
+        file.write('Имя файла | Предсказанный класс\n')
         for idx in range(len(data)):
             X, y = data[idx]
             X_array = np.array(X)
@@ -119,12 +119,11 @@ def __rknn__(model_name, data_root):
             timestamp_end = timer()
             probs = softmax(y_raw[0][0])
             y_pred = np.argmax(probs)
-            print(f"Выход модели: {y_raw}, softmax: {probs}, class: {y_pred}")
-            print(f"Реальные данные: {y}")
+            print(f"Выход модели: {probs}")
             time_loop.append(np.round(timestamp_end-timestamp_start, 4))
             y_preds.append(y_pred)
             y_trues.append(y)
-            file.write(f'{data.image_name}, [{probs[0]:.4f}, {probs[1]:.4f}], {data.classes[y_pred]}\n')
+            file.write(f'{data.image_name}, {classes[y_pred]}\n')
 
     timestamp_end_all = timer()
     print(f'Обработка изображений заняла {np.sum(time_loop)} секунд, на обработку одного изображения в среднем уходит: {np.mean(time_loop):.4f}')

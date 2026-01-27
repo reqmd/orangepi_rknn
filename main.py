@@ -283,8 +283,9 @@ def main(mode, arguments):
                             for image in images_list:
                                 os.rename(os.path.join(cls_path, camera_num, image), f'{cls_path}/{camera_num}_{image}')
                             shutil.rmtree(camera_path)
-                        
-                    __rknn__(model_name=inf_model, data_root=main_path)
+                    
+                    classes = os.listdir(os.path.join(DATA_PATH, mode_name, 'images'))
+                    __rknn__(model_name=inf_model, data_root=main_path, classes = classes)
                     annot_root = os.path.join(DATA_PATH, mode_name, 'annotations')
                     if os.path.exists(annot_root):
                         result = run_check_call(args=[COMMANDS['sendannot'], annot_root])
