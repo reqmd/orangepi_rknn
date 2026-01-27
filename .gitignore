@@ -21,3 +21,4 @@ annotations/
 *.tar
 /tars
 /data
+logs/udp_server_output.log
