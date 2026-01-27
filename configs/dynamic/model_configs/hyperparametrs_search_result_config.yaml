@@ -1,9 +1,7 @@
-batch_size: 4
-lr: 0.0009
-weight_decay: 0.008
-hidden_size: 128
-dropout_p: 0.0
-n_filters: 36
-resolution: 64
+batch_size: 16
+lr: 0.0008
+weight_decay: 0.0006
+hidden_size: 320
+resolution: 16
 num_classes: 2
-model: CNN
+model: MLP16

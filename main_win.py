@@ -1,15 +1,14 @@
-import sys
 import os
 import shutil
 import subprocess
 import stat
-from datetime import datetime
 import time
 
 from src.data.dataset import LabeledDataset
 from src.utils.device_func import device_config
 from src.training.train import __train__
 from testing.pipeline.test import __test__
+from src.training.search_hyperparams import __hyperparams__
 
 
 params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml',       #YAMl файл отвечающий за параметры псевдоразметки
@@ -22,18 +21,13 @@ device = device_config(params_roots=params_to_modify)
 print(f'Будет использоваться {device}')
 
 BYTES_TO_COMMAND = {
-    0:'testconnect',
     1:'rotate',
     2:'new',
     3:'delete',
     4:'copy',
     5:'train',
     6:'test',
-    7:'sendlog',
-    8:'sendmodel',
-    9:'sendresult',
-    10:'stop',
-    11:'status',
+    7:'hyperparams'
 }
 
 DATA_PATH = './data'
@@ -193,7 +187,31 @@ def main(mode, arguments):
                     print(os.path.join(main_path, 'test'))
                     data = LabeledDataset(os.path.join(main_path, 'test'))
                     __test__(model_name=inf_model, data=data)
+                else:
+                    print('Режима не существует\n')
+                    return 'Режима не существует'
+            else:
+                print('Название режима отсутствует\n')
+                return 'Название режима отсутствует'
                     
+        case 'hyperparams':
+            if mode_name != None:
+                print(os.path.join(DATA_PATH, mode_name))
+                if os.path.exists(os.path.join(DATA_PATH, mode_name)):
+                    modename_path = os.path.join(DATA_PATH, mode_name)
+                    d_path = os.path.join(modename_path, 'images')
+                    data = LabeledDataset(d_path)
+                    timestamp_train_start = time.time()
+                    __hyperparams__(data, mode_name = mode_name, f1_threshhold=0.99)
+                    timestamp_train_end = time.time()
+                    print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
+                else:
+                    print('Режима не существует\n')
+                    return 'Режима не существует'
+            else:
+                print('Название режима отсутствует\n')
+                return 'Название режима отсутствует'
+
         case _:
             pass
     

@@ -1,9 +1,11 @@
 from torch.utils.data import DataLoader
 import torch
+import os
 import numpy as np
 from sklearn.metrics import f1_score
 import torch.nn as nn
 import optuna
+import time
 
 from src.data.dataset import LabeledDataset
 from src.data.funcs import dataset_into_loader, train_test_split
@@ -16,7 +18,7 @@ from src.utils.config_funcs import load_yaml, save_yaml
 from src.utils.early_stopping import EarlyStopping
 from src.training.train import __train__
 
-def __hyperparams__(data,  f1_threshhold = 0.98, test_size = 0.5):
+def __hyperparams__(data, mode_name, f1_threshhold = 0.98, test_size = 0.5):
     num_classes = len(data.classes)
     prep_params = load_yaml('configs/static/prep_configs/st_prep_hyperparams_config.yaml')
     model_params = load_yaml('configs/dynamic/model_configs/mnd_config.yaml')
@@ -33,8 +35,12 @@ def __hyperparams__(data,  f1_threshhold = 0.98, test_size = 0.5):
                                                val_data=val_data), n_trials=prep_params['n_trials'])
         best_params = study.best_params
         save_best_params(best_params=best_params, model_name=model_name, num_classes=num_classes, resolution=resolution)
+        f_time = time.strftime("%d.%m_%H.%M")
+        DATA_PATH = './data'
+        modename_path = os.path.join(DATA_PATH, mode_name)
+        model_name = f'{f_time}-{mode_name}.pth'
 
-        f1_best = __train__(data = [train_data, val_data], use_for_hyperparams=True)
+        f1_best = __train__(data = data, model_name=model_name, modename_path=modename_path, use_for_hyperparams=True)
         
         if f1_best > f1_threshhold:
             break
