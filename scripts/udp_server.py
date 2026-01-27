@@ -71,6 +71,7 @@ def train_model(mode, arguments):
     global result
     print('Вход в поток обучения')
     try:
+      resp = 0
       result = main.main(mode, arguments)
       print('Обучение завершено')
       if result != 0:
