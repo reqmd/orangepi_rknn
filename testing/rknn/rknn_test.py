@@ -19,9 +19,10 @@ PRINT_TO_FILE = True
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
 print = log.printml
 
-def export_pytorch_model(model_name):
+def export_pytorch_model(model_name, classes):
     model_params_root = './configs/dynamic/model_configs/hyperparametrs_search_result_config.yaml'
     model_params = load_yaml(model_params_root)
+    model_params['num_classes'] = len(classes)
     net = load_model(params = model_params, model_name=model_name)
     all_params = load_yaml(model_params_root)
     print(all_params)
@@ -60,13 +61,15 @@ def __rknn__(model_name, data_root, classes):
     params = load_yaml(all_params_root)
     timestamp_start_all = timer()
     print('--> Preprocessing')
-    rknn_name = export_pytorch_model(model_name=model_name)
     res = params['resolution']
     input_size = [[1, 3, res, res]]
+    _, val_transform = return_transforms(resolutions=res)
+    data = LabeledDataset(os.path.join(data_root, 'test'), transform=val_transform)
+    rknn_name = export_pytorch_model(model_name=model_name, classes = classes)
     rknn = RKNN(verbose=True)
     dataset_root = generate_txt(data_root=data_root)
 
-    _, val_transform = return_transforms(resolutions=res)
+    
     print('OK')
 
     print('--> Config model')
@@ -94,8 +97,6 @@ def __rknn__(model_name, data_root, classes):
         exit(ret)
     print('OK')
 
-    data = LabeledDataset(os.path.join(data_root, 'test'), transform=val_transform)
-
     print('--> Init runtime environment')
     ret = rknn.init_runtime()
     if ret != 0:
@@ -109,7 +110,7 @@ def __rknn__(model_name, data_root, classes):
     annot_root = os.path.join(data_root, 'annotations', 'result_test_annot.txt')
     with open(annot_root, 'w') as file:
         file.write('Начало записи аннотаций к разметке\n')
-        file.write('Имя файла | Предсказанный класс\n')
+        file.write('Имя файла | Самая высокая вероятность класса | Предсказанный класс\n')
         for idx in range(len(data)):
             X, y = data[idx]
             X_array = np.array(X)
@@ -119,11 +120,10 @@ def __rknn__(model_name, data_root, classes):
             timestamp_end = timer()
             probs = softmax(y_raw[0][0])
             y_pred = np.argmax(probs)
-            print(f"Выход модели: {probs}")
             time_loop.append(np.round(timestamp_end-timestamp_start, 4))
             y_preds.append(y_pred)
             y_trues.append(y)
-            file.write(f'{data.image_name}, {classes[y_pred]}\n')
+            file.write(f'{data.image_name} | {np.max(probs):.4f} | {classes[y_pred]}\n')
 
     timestamp_end_all = timer()
     print(f'Обработка изображений заняла {np.sum(time_loop)} секунд, на обработку одного изображения в среднем уходит: {np.mean(time_loop):.4f}')

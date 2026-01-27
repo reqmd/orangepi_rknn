@@ -73,10 +73,17 @@ def train_model(mode, arguments):
     try:
       result = main.main(mode, arguments)
       print('Обучение завершено')
+      if result != 0:
+          resp = 1
+      response = [resp, mode]
+      byte_data = bytes(response)
+      sock.sendto(byte_data, addr)
     except Exception as e:
       print(str(traceback.format_exc()))
       resp = 3
       response = [resp, mode]
+      byte_data = bytes(response)
+      sock.sendto(byte_data, addr)
 
 while True:
     data, addr = sock.recvfrom(BUFFER_SIZE)
@@ -106,9 +113,11 @@ while True:
                 if 100 - idle > 75:
                     response = [resp, mode, 1]
                     byte_data = bytes(response)
+                    #print(response)
                 else:
                     response = [resp, mode, 0]
                     byte_data = bytes(response)
+                    #print(response)
             elif mode == 5:
                 # Запускаем обучение в отдельном потоке
                 stop_event.clear()
@@ -116,11 +125,13 @@ while True:
                 training_thread.start()
                 response = [resp, mode]
                 byte_data = bytes(response)
+                #print(response)
             elif mode == 10:
                 # Останавливаем обучение
                 if training_thread and training_thread.is_alive():
                     response = [resp, mode]
                     byte_data = bytes(response)
+                    #print(response)
                     sock.sendto(byte_data, addr)
                     subprocess.run(['sudo', 'systemctl', 'restart', 'u.service'], check = True)
                     stop_event.set()
@@ -129,7 +140,7 @@ while True:
                     resp = 1
                     response = [resp, mode]
                     byte_data = bytes(response)
-                    message = f"Нет активного процесса обучения"
+                    #print(response)
             else:
                 # Выполняем другие команды
                 exit_code = main.main(mode, arguments)
@@ -137,16 +148,22 @@ while True:
                     resp = 1
                     response = [resp, mode]
                     byte_data = bytes(response)
+                    #print(response)
                     message = exit_code
                 else:
                     response = [resp, mode]
                     byte_data = bytes(response)
+                    #print(response)
         else:
             resp = 2
             response = [resp, mode]
             byte_data = bytes(response)
+            #print(response)
     except Exception as e:
         print(str(traceback.format_exc()))
         resp = 3
         response = [resp, mode]
-    sock.sendto(byte_data, addr)
+        byte_data = bytes(response)
+        #print(response)
+    if mode != 5:
+      sock.sendto(byte_data, addr)
