@@ -9,8 +9,7 @@ import time
 from src.data.dataset import LabeledDataset
 from src.utils.device_func import device_config
 from src.training.train import __train__
-from scripts.run_sh import run_check_call, run_command
-from logs.logger import mylogger
+from testing.pipeline.test import __test__
 
 
 params_to_modify = ['configs/static/prep_configs/st_prep_pseudolabel.yaml',       #YAMl файл отвечающий за параметры псевдоразметки
@@ -127,7 +126,6 @@ def main(mode, arguments):
             if mode_name != None:
                 if os.path.exists(os.path.join(DATA_PATH, mode_name)):
                     modename_path = os.path.join(DATA_PATH, mode_name)
-                    time = datetime.now()
                     f_time = time.strftime("%d.%m_%H.%M")
                     model_name = f'{f_time}-{mode_name}.pth'
                     d_path = os.path.join(modename_path, 'images')
@@ -142,8 +140,60 @@ def main(mode, arguments):
             else:
                 print('Название режима отсутствует\n')
                 return 'Название режима отсутствует'
+            
         case 'test':
-            pass
+            if mode_name != None:
+                if os.path.exists(os.path.join(DATA_PATH, mode_name)):
+                    test_path = os.path.join(DATA_PATH, mode_name, 'test')
+                    shutil.rmtree(test_path)
+                    os.mkdir(test_path)
+                    models_list = os.listdir(MODELS_PATH)
+                    print(models_list)
+                    for model in models_list:
+                        model_name = model.split('-')
+                        print(model_name[1], f'{arguments[0]}.pth')
+                        if len(model_name) < 2:
+                            continue
+                        if model_name[1] == f'{arguments[0]}.pth':
+                            inf_model = os.path.join(MODELS_PATH, model)
+                        else:
+                            print('Модель для такого режима не найдена\n')
+                            
+                    
+                    TARS_PATH = r'C:\Users\Куликов\Desktop\FTP\download'
+                    if os.listdir(TARS_PATH) == []:
+                        print('В папке нет архива\n')
+                        return 'В папке нет архива'
+                    else:
+                        archive = os.listdir(TARS_PATH)[0]
+                        main_path = os.path.join(DATA_PATH, mode_name)
+                        mode_path = os.path.join(DATA_PATH, mode_name, 'test')
+                        command = [r'C:\Program Files\7-Zip\7z.exe', "x", os.path.join(TARS_PATH, archive), f"-o{mode_path}", "-y"]
+                        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                        if os.listdir(mode_path) != [] and result.returncode == 0:
+                            print(f'Архив успешно распакован и находится в {mode_path}')
+                        else:
+                            print('Не удалось распаковать архив или архива нет в нужной папке\n')
+                            return 'Не удалось распаковать архив или архива нет в нужной папке'
+
+                    classes = os.listdir(mode_path)
+                    for cls in classes:
+                        cls_path = os.path.join(mode_path, cls)
+                        current_mode = os.stat(cls_path).st_mode
+                        new_mode = current_mode | stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
+                        os.chmod(cls_path, new_mode)
+                        cameras_list = os.listdir(cls_path)
+                        for camera_num in cameras_list:
+                            camera_path = os.path.join(cls_path, camera_num)
+                            images_list = os.listdir(camera_path)
+                            for image in images_list:
+                                os.rename(os.path.join(cls_path, camera_num, image), f'{cls_path}/{camera_num}_{image}')
+                            shutil.rmtree(camera_path)
+                    print(os.path.join(main_path, 'test'))
+                    data = LabeledDataset(os.path.join(main_path, 'test'))
+                    __test__(model_name=inf_model, data=data)
+                    
         case _:
             pass
     
