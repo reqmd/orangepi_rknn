@@ -11,16 +11,17 @@ from src.utils.early_stopping import EarlyStopping
 from src.utils.save_load import save_model, load_model
 from logs.logger import mylogger
 
-# логирование в файл результатов обучения
-MODELS_PATH = './models'
-LOG_FILE = './logs/udp_server_output.log'
-PRINT_TO_FILE = True
-log = mylogger(LOG_FILE, PRINT_TO_FILE)
-print = log.printml
-
 
 def __train__(data, model_name, modename_path,
               use_for_hyperparams = False):
+    if use_for_hyperparams != True:
+        # логирование в файл результатов обучения
+        MODELS_PATH = './models'
+        LOG_FILE = './logs/udp_server_output.log'
+        PRINT_TO_FILE = True
+        log = mylogger(LOG_FILE, PRINT_TO_FILE)
+        print = log.printml
+        
     labels = [label for _, label in data]
     class_counts = np.bincount(labels)
     prep_params = load_yaml('configs/static/prep_configs/st_prep_config.yaml')

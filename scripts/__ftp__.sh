@@ -1,6 +1,6 @@
 #!/usr/bin/expect -f
 
-set ftp_server "192.168.2.1"
+set ftp_server "192.168.2.100"
 set ftp_user "ubuntu"
 set ftp_pass "!q2w3e4R"
 set remote_dir "/download"
