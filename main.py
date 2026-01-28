@@ -151,33 +151,17 @@ def main(mode, arguments):
                 else:
                     archive = os.listdir(TARS_PATH)[0]
                     mode_path = os.path.join(DATA_PATH, mode_name, 'images')
-                    command = ["/usr/bin/7z", "x", os.path.join(TARS_PATH, archive), f"-o{mode_path}", "-y"]
-                    result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    # извлекли архив
-                    # запись работы 7z
-                    # print(result.stdout.decode("utf-8"))
-                    # print(result.stderr.decode("utf-8"))
-                    for root, dirs, files in os.walk(mode_path):
-                        for dir_name in dirs:
-                            if '\\' in dir_name:
-                                old_path = os.path.join(root, dir_name)
-                                new_dir_name = dir_name.replace('\\', '/')
-                                new_path = os.path.join(root, new_dir_name)
-                                os.rename(old_path, new_path)
-
-                        for file_name in files:
-                            if '\\' in file_name:
-                                old_path = os.path.join(root, file_name)
-                                new_file_name = file_name.replace('\\', '/')
-                                new_path = os.path.join(root, new_file_name)
-                                os.rename(old_path, new_path)
+                    
                     if os.listdir(mode_path) != [] and result.returncode == 0:
                         print(f'Архив успешно распакован и находится в {mode_path}')
                         os.remove(os.path.join(TARS_PATH, archive))
                     else:
                         print('Не удалось распаковать архив или архива нет в нужной папке\n')
                         return 'Не удалось распаковать архив или архива нет в нужной папке'
-                    
+                    for item in os.listdir(TARS_PATH):
+                        source_item = os.path.join(TARS_PATH, item)
+                        target_item = os.path.join(mode_name, item)
+                        shutil.move(source_item, target_item)
                     # преобразование содержимого архива в набор данных
                     classes = os.listdir(mode_path)
                     for cls in classes:
