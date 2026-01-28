@@ -157,6 +157,20 @@ def main(mode, arguments):
                     # запись работы 7z
                     # print(result.stdout.decode("utf-8"))
                     # print(result.stderr.decode("utf-8"))
+                    for root, dirs, files in os.walk(mode_path):
+                        for dir_name in dirs:
+                            if '\\' in dir_name:
+                                old_path = os.path.join(root, dir_name)
+                                new_dir_name = dir_name.replace('\\', '/')
+                                new_path = os.path.join(root, new_dir_name)
+                                os.rename(old_path, new_path)
+
+                        for file_name in files:
+                            if '\\' in file_name:
+                                old_path = os.path.join(root, file_name)
+                                new_file_name = file_name.replace('\\', '/')
+                                new_path = os.path.join(root, new_file_name)
+                                os.rename(old_path, new_path)
                     if os.listdir(mode_path) != [] and result.returncode == 0:
                         print(f'Архив успешно распакован и находится в {mode_path}')
                         os.remove(os.path.join(TARS_PATH, archive))
