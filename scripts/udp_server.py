@@ -80,13 +80,20 @@ def train_model(mode, arguments):
       resp = 0
       result = main.main(mode, arguments)
       print('Обучение завершено')
-      if result != 0:
-            resp = 0
-            response = [resp, 5]
-            byte_data = bytes(response)
-            print(byte_data)
-            sendfivetimes(byte_data=byte_data)
-            print(f'Успешно выполнена команда {mode}')
+      if result == 0:
+          resp = 0
+          response = [resp, 5]
+          byte_data = bytes(response)
+          print(byte_data)
+          sendfivetimes(byte_data=byte_data)
+          print(f'Успешно выполнена команда {mode}')
+      else:
+          resp = 1
+          response = [resp, 5]
+          byte_data = bytes(response)
+          print(byte_data)
+          sendfivetimes(byte_data=byte_data)
+          print(f'Команда {mode} была выполнена с ошибкой')
     except Exception as e:
       print(str(traceback.format_exc()))
       resp = 0
@@ -118,11 +125,13 @@ while True:
                     byte_data = bytes(response)
                     print(byte_data)
                     print('Train')
+                    sock.sendto(byte_data, addr)
                 else:
                     response = [resp, mode, 0]
                     byte_data = bytes(response)
                     print(byte_data)
                     print('Idle')
+                    sock.sendto(byte_data, addr)
             elif mode == 5:
                 # Запускаем обучение в отдельном потоке
                 response = [resp, mode]
@@ -176,23 +185,27 @@ while True:
                     byte_data = bytes(response)
                     print(byte_data)
                     #print(response)
+                    sock.sendto(byte_data, addr)
                     message = exit_code
                     print(f'Сообщение ошибки {message}')
                 else:
                     response = [resp, mode]
                     byte_data = bytes(response)
                     print(byte_data)
+                    sock.sendto(byte_data, addr)
                     #print(response)
         else:
             resp = 2
             response = [resp, mode]
             byte_data = bytes(response)
             print(byte_data)
+            sock.sendto(byte_data, addr)
             #print(response)
     except Exception as e:
         print(str(traceback.format_exc()))
         resp = 3
         response = [resp, mode]
         byte_data = bytes(response)
+        sock.sendto(byte_data, addr)
         print(byte_data)
         #print(response)

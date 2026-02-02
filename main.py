@@ -130,8 +130,8 @@ def main(mode, arguments):
 
         case 'new':
             if mode_name != None:
-                if not os.path.exists(os.path.join(DATA_PATH, mode_name)):
-                    modename_path = os.path.join(DATA_PATH, mode_name)
+                modename_path = os.path.join(DATA_PATH, mode_name)
+                if not os.path.exists(modename_path):
                     os.mkdir(modename_path)
                     os.mkdir(os.path.join(modename_path, 'images'))
                     os.mkdir(os.path.join(modename_path, 'annotations'))
@@ -141,8 +141,10 @@ def main(mode, arguments):
                     shutil.rmtree(os.path.join(modename_path, 'images'))
                     shutil.rmtree(os.path.join(modename_path, 'annotations'))
                     shutil.rmtree(os.path.join(modename_path, 'test'))
+                    os.mkdir(os.path.join(modename_path, 'images'))
+                    os.mkdir(os.path.join(modename_path, 'annotations'))
+                    os.mkdir(os.path.join(modename_path, 'test'))
                     print('Режим уже существует\n')
-                    return 'Режим уже существует'
                 
                 #скачивание архива
                 result = run_command(COMMANDS['ftp'])
@@ -252,6 +254,7 @@ def main(mode, arguments):
                     __train__(data=data, model_name = model_name, modename_path = modename_path)
                     timestamp_train_end = timer()
                     print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
+                    return 0
                 else:
                     print('Режима не существует\n')
                     return 'Режима не существует'
