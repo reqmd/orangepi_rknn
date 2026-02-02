@@ -1,4 +1,5 @@
 import os
+import tarfile
 import shutil
 import subprocess
 import stat
@@ -18,11 +19,12 @@ TARS_PATH = './tars'
 MODELS_PATH = './models'
 
 COMMANDS = {
-    'ftp': "/home/ubuntu/NAS-project/scripts/ftp.sh",
-    'sendlog':"/home/ubuntu/NAS-project/scripts/sendlog.sh",
+    'ftp': "/home/ubuntu/NAS-project/scripts/__ftp__.sh",
+    'sendlog':"/home/ubuntu/NAS-project/scripts/__sendlog__.sh",
     'sendannot':"/home/ubuntu/NAS-project/scripts/__sendannot__.sh",
     'sendmodel':"/home/ubuntu/NAS-project/scripts/__sendmodel__.sh",
     'sendresult':'/home/ubuntu/NAS-project/scripts/__sendresult__.sh',
+    'ftp_end':'/home/ubuntu/NAS-project/scripts/__ftp_end__.sh'
 }
 
 BYTES_TO_COMMAND = {
@@ -149,12 +151,32 @@ def main(mode, arguments):
                     print('В папке нет архива\n')
                     return 'В папке нет архива'
                 else:
-                    archive = os.listdir(TARS_PATH)[0]
+                    archive = os.path.join('tars', os.listdir(TARS_PATH)[0])
                     mode_path = os.path.join(DATA_PATH, mode_name, 'images')
+                    #command = ['sudo', 'tar', '-xzvf', archive, '--transform=\'s,\\,/,g\'', '-C', mode_path]
+                    #result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    with tarfile.open(archive, "r:gz") as tar:
+                      for member in tar.getmembers():
+                          # Преобразуем имя файла из CP1251 в UTF-8 (если нужно)
+                          try:
+                              member.name = member.name.encode('cp1251').decode('utf-8')
+                              member.path = member.path.encode('cp1251').decode('utf-8')
+                          except UnicodeError:
+                              # Если преобразование не удалось, оставляем как есть
+                              pass
+                          tar.extract(member, path=mode_path)
+                          
+                      os.chmod(mode_path, 0o755)
+                      
+                      for root, dirs, files in os.walk(mode_path):
+                        for dir in dirs:
+                            os.chmod(os.path.join(root, dir), 0o755)  # Права для папок
+                        for file in files:
+                            os.chmod(os.path.join(root, file), 0o644)  # Права для файлов
                     
-                    if os.listdir(mode_path) != [] and result.returncode == 0:
+                    if os.listdir(mode_path) != []:
                         print(f'Архив успешно распакован и находится в {mode_path}')
-                        os.remove(os.path.join(TARS_PATH, archive))
+                        os.remove(os.path.join(archive))
                     else:
                         print('Не удалось распаковать архив или архива нет в нужной папке\n')
                         return 'Не удалось распаковать архив или архива нет в нужной папке'
@@ -179,6 +201,9 @@ def main(mode, arguments):
                     
                     # должно получиться class1 - 01_1.bmp, 01_2.bmp, ... 
                     print('Набор данных преобразован в нужный формат')
+                    result = run_command(COMMANDS['ftp_end'])
+                    print(result)
+                    print('Архив удален')
             else:
                 print('Название режима отсутствует\n')
                 return 'Название режима отсутствует'
@@ -250,19 +275,32 @@ def main(mode, arguments):
                         print('В папке нет архива\n')
                         return 'В папке нет архива'
                     else:
-                        archive = os.listdir(TARS_PATH)[0]
+                        archive = os.path.join('tars', os.listdir(TARS_PATH)[0])
                         main_path = os.path.join(DATA_PATH, mode_name)
                         mode_path = os.path.join(DATA_PATH, mode_name, 'test')
-                        command = ["/usr/bin/7z", "x", os.path.join(TARS_PATH, archive), f"-o{mode_path}", "-y"]
-                        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                        # извлекли архив
-                        # запись работы 7z
-                        # print(result.stdout.decode("utf-8"))
-                        # print(result.stderr.decode("utf-8"))
-                        if os.listdir(mode_path) != [] and result.returncode == 0:
+                        
+                        with tarfile.open(archive, "r:gz") as tar:
+                          for member in tar.getmembers():
+                              # Преобразуем имя файла из CP1251 в UTF-8 (если нужно)
+                              try:
+                                  member.name = member.name.encode('cp1251').decode('utf-8')
+                                  member.path = member.path.encode('cp1251').decode('utf-8')
+                              except UnicodeError:
+                                  # Если преобразование не удалось, оставляем как есть
+                                  pass
+                              tar.extract(member, path=mode_path)
+                              
+                          os.chmod(mode_path, 0o755)
+                          
+                          for root, dirs, files in os.walk(mode_path):
+                            for dir in dirs:
+                                os.chmod(os.path.join(root, dir), 0o755)  # Права для папок
+                            for file in files:
+                                os.chmod(os.path.join(root, file), 0o644)
+                        if os.listdir(mode_path) != []:
                             print(f'Архив успешно распакован и находится в {mode_path}')
                             # удаление архива после работы с ним
-                            os.remove(os.path.join(TARS_PATH, archive))
+                            os.remove(archive)
                         else:
                             print('Не удалось распаковать архив или архива нет в нужной папке\n')
                             return 'Не удалось распаковать архив или архива нет в нужной папке'

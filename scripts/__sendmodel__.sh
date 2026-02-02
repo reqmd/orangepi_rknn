@@ -2,7 +2,7 @@
 
 set ftp_server "192.168.2.100"
 set ftp_user "ubuntu"
-set ftp_pass "!q2w3e4R"
+set ftp_pass "q2w3e4R"
 set remote_dir "/upload"
 set local_dir "/home/ubuntu/NAS-project/models"
 set model_name [lindex $argv 0]

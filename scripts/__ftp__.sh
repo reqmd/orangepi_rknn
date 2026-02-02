@@ -2,7 +2,7 @@
 
 set ftp_server "192.168.2.100"
 set ftp_user "ubuntu"
-set ftp_pass "!q2w3e4R"
+set ftp_pass "q2w3e4R"
 set remote_dir "/download"
 set local_dir "/home/ubuntu/NAS-project/tars"
 
@@ -17,8 +17,6 @@ expect "ftp"
 send "lcd $local_dir\r"
 expect "ftp"
 send "mget *\r"
-expect "ftp"
-send "mdel *\r"
 expect "ftp"
 send "bye\r"
 interact
