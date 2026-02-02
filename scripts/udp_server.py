@@ -81,7 +81,7 @@ def train_model(mode, arguments):
       result = main.main(mode, arguments)
       print('Обучение завершено')
       if result == 0:
-          resp = 0
+          resp = 4
           response = [resp, 5]
           byte_data = bytes(response)
           print(byte_data)
@@ -96,8 +96,8 @@ def train_model(mode, arguments):
           print(f'Команда {mode} была выполнена с ошибкой')
     except Exception as e:
       print(str(traceback.format_exc()))
-      resp = 0
-      response = [resp, 11, 2]
+      resp = 3
+      response = [resp, 5]
       byte_data = bytes(response)
       print(byte_data)
       sendfivetimes(byte_data=byte_data)
@@ -165,13 +165,12 @@ while True:
                 sendfivetimes(byte_data=byte_data)
                 exit_code = main.main(mode, arguments)
                 if exit_code != 0:
-                    resp = 1
-                    response = [resp, mode]
+                    response = [1, mode]
                     byte_data = bytes(response)
                     #print(response)
                     sendfivetimes(byte_data=byte_data)
                 else:
-                    response = [resp, mode]
+                    response = [4, mode]
                     byte_data = bytes(response)
                     print(byte_data)
                     sendfivetimes(byte_data=byte_data)
