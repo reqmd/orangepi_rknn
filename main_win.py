@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import stat
 import time
+import tarfile
 
 from src.data.dataset import LabeledDataset
 from src.utils.device_func import device_config
@@ -55,16 +56,21 @@ def main(mode, arguments):
         
         case 'new':
             if mode_name != None:
-                if not os.path.exists(os.path.join(DATA_PATH, mode_name)):
-                    modename_path = os.path.join(DATA_PATH, mode_name)
+                modename_path = os.path.join(DATA_PATH, mode_name)
+                if not os.path.exists(modename_path):
                     os.mkdir(modename_path)
                     os.mkdir(os.path.join(modename_path, 'images'))
                     os.mkdir(os.path.join(modename_path, 'annotations'))
                     os.mkdir(os.path.join(modename_path, 'test'))
                     print(f'Режим {mode_name} был успешно создан')
                 else:
+                    shutil.rmtree(os.path.join(modename_path, 'images'))
+                    shutil.rmtree(os.path.join(modename_path, 'annotations'))
+                    shutil.rmtree(os.path.join(modename_path, 'test'))
+                    os.mkdir(os.path.join(modename_path, 'images'))
+                    os.mkdir(os.path.join(modename_path, 'annotations'))
+                    os.mkdir(os.path.join(modename_path, 'test'))
                     print('Режим уже существует\n')
-                    return 'Режим уже существует'
                 
                 #преобразование архива в набор данных
                 TARS_PATH = r'C:\Users\Куликов\Desktop\FTP\download'
@@ -72,16 +78,37 @@ def main(mode, arguments):
                     print('В папке нет архива\n')
                     return 'В папке нет архива'
                 else:
-                    archive = os.listdir(TARS_PATH)[0]
+                    archive = os.path.join(TARS_PATH, os.listdir(TARS_PATH)[0])
                     mode_path = os.path.join(DATA_PATH, mode_name, 'images')
-                    command = [r'C:\Program Files\7-Zip\7z.exe', "x", os.path.join(TARS_PATH, archive), f"-o{mode_path}", "-y"]
-                    result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    if os.listdir(mode_path) != [] and result.returncode == 0:
+                    with tarfile.open(archive, "r:gz") as tar:
+                        for member in tar.getmembers():
+                            # Преобразуем имя файла из CP1251 в UTF-8 (если нужно)
+                            try:
+                                member.name = member.name.encode('cp1251').decode('utf-8')
+                                member.path = member.path.encode('cp1251').decode('utf-8')
+                            except UnicodeError:
+                                # Если преобразование не удалось, оставляем как есть
+                                pass
+                            tar.extract(member, path=mode_path)
+                        
+                    os.chmod(mode_path, 0o755)
+                    
+                    for root, dirs, files in os.walk(mode_path):
+                        for dir in dirs:
+                            os.chmod(os.path.join(root, dir), 0o755)  # Права для папок
+                        for file in files:
+                            os.chmod(os.path.join(root, file), 0o644)  # Права для файлов
+                    
+                    if os.listdir(mode_path) != []:
                         print(f'Архив успешно распакован и находится в {mode_path}')
+                        os.remove(os.path.join(archive))
                     else:
                         print('Не удалось распаковать архив или архива нет в нужной папке\n')
                         return 'Не удалось распаковать архив или архива нет в нужной папке'
-                    
+                    for item in os.listdir(TARS_PATH):
+                        source_item = os.path.join(TARS_PATH, item)
+                        target_item = os.path.join(mode_name, item)
+                        shutil.move(source_item, target_item)
                     # преобразование содержимого архива в набор данных
                     classes = os.listdir(mode_path)
                     for cls in classes:
