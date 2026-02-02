@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import socket
 import sys
+import time
 from pathlib import Path
 from datetime import datetime
 import traceback
@@ -62,10 +63,15 @@ LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
 PRINT_TO_FILE = True
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
 print = log.printml
-
 training_thread = None
 stop_event = threading.Event()
 message = ' '
+
+def sendfivetimes(byte_data):
+    for i in range(1, 6):
+        sock.sendto(byte_data, addr)
+        print(f"Отправлен пакет {i} клиенту {addr}")
+        time.sleep(0.05)
 
 def train_model(mode, arguments):
     global result
@@ -75,18 +81,19 @@ def train_model(mode, arguments):
       result = main.main(mode, arguments)
       print('Обучение завершено')
       if result != 0:
-          resp = 0
-          response = [resp, 11, 2]
-          byte_data = bytes(response)
-          print(byte_data)
-          sock.sendto(byte_data, addr)
+            resp = 0
+            response = [resp, 5]
+            byte_data = bytes(response)
+            print(byte_data)
+            sendfivetimes(byte_data=byte_data)
+            print(f'Успешно выполнена команда {mode}')
     except Exception as e:
       print(str(traceback.format_exc()))
       resp = 0
       response = [resp, 11, 2]
       byte_data = bytes(response)
       print(byte_data)
-      sock.sendto(byte_data, addr)
+      sendfivetimes(byte_data=byte_data)
 
 while True:
     data, addr = sock.recvfrom(BUFFER_SIZE)
@@ -106,14 +113,7 @@ while True:
         import main
         if mode in BYTES_TO_COMMAND:
             if mode == 11:
-                stat = subprocess.run(
-                         ["mpstat", "1", "1"],
-                         capture_output = True
-                     )
-                lines = stat.stdout.decode('utf-8').split('\n')
-                line = lines[4].split(' ')[-1]
-                idle =  float(line)
-                if 100 - idle > 75:
+                if training_thread is not None and training_thread.is_alive():
                     response = [resp, mode, 1]
                     byte_data = bytes(response)
                     print(byte_data)
@@ -125,13 +125,13 @@ while True:
                     print('Idle')
             elif mode == 5:
                 # Запускаем обучение в отдельном потоке
-                stop_event.clear()
-                training_thread = threading.Thread(target=train_model, args=(mode,arguments))
-                training_thread.start()
                 response = [resp, mode]
                 byte_data = bytes(response)
                 print(byte_data)
-                sock.sendto(byte_data, addr)
+                sendfivetimes(byte_data=byte_data)
+                stop_event.clear()
+                training_thread = threading.Thread(target=train_model, args=(mode,arguments))
+                training_thread.start()
                 #print(response)
             elif mode == 10:
                 # Останавливаем обучение
@@ -150,22 +150,22 @@ while True:
                     byte_data = bytes(response)
                     print(byte_data)
                     #print(response)
-            elif mode == 2:
+            elif (mode == 2) or (mode == 6):
                 response = [resp, mode]
                 byte_data = bytes(response)
-                sock.sendto(byte_data, addr)
+                sendfivetimes(byte_data=byte_data)
                 exit_code = main.main(mode, arguments)
                 if exit_code != 0:
                     resp = 1
                     response = [resp, mode]
                     byte_data = bytes(response)
-                    print(byte_data)
                     #print(response)
-                    message = exit_code
+                    sendfivetimes(byte_data=byte_data)
                 else:
                     response = [resp, mode]
                     byte_data = bytes(response)
                     print(byte_data)
+                    sendfivetimes(byte_data=byte_data)
                     #print(response)
             else:
                 # Выполняем другие команды
@@ -177,6 +177,7 @@ while True:
                     print(byte_data)
                     #print(response)
                     message = exit_code
+                    print(f'Сообщение ошибки {message}')
                 else:
                     response = [resp, mode]
                     byte_data = bytes(response)
@@ -195,5 +196,3 @@ while True:
         byte_data = bytes(response)
         print(byte_data)
         #print(response)
-    if mode != 5:
-      sock.sendto(byte_data, addr)

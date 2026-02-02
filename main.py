@@ -138,6 +138,9 @@ def main(mode, arguments):
                     os.mkdir(os.path.join(modename_path, 'test'))
                     print(f'Режим {mode_name} был успешно создан')
                 else:
+                    shutil.rmtree(os.path.join(modename_path, 'images'))
+                    shutil.rmtree(os.path.join(modename_path, 'annotations'))
+                    shutil.rmtree(os.path.join(modename_path, 'test'))
                     print('Режим уже существует\n')
                     return 'Режим уже существует'
                 
@@ -156,19 +159,19 @@ def main(mode, arguments):
                     #command = ['sudo', 'tar', '-xzvf', archive, '--transform=\'s,\\,/,g\'', '-C', mode_path]
                     #result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     with tarfile.open(archive, "r:gz") as tar:
-                      for member in tar.getmembers():
-                          # Преобразуем имя файла из CP1251 в UTF-8 (если нужно)
-                          try:
-                              member.name = member.name.encode('cp1251').decode('utf-8')
-                              member.path = member.path.encode('cp1251').decode('utf-8')
-                          except UnicodeError:
-                              # Если преобразование не удалось, оставляем как есть
-                              pass
-                          tar.extract(member, path=mode_path)
-                          
-                      os.chmod(mode_path, 0o755)
-                      
-                      for root, dirs, files in os.walk(mode_path):
+                        for member in tar.getmembers():
+                            # Преобразуем имя файла из CP1251 в UTF-8 (если нужно)
+                            try:
+                                member.name = member.name.encode('cp1251').decode('utf-8')
+                                member.path = member.path.encode('cp1251').decode('utf-8')
+                            except UnicodeError:
+                                # Если преобразование не удалось, оставляем как есть
+                                pass
+                            tar.extract(member, path=mode_path)
+                        
+                    os.chmod(mode_path, 0o755)
+                    
+                    for root, dirs, files in os.walk(mode_path):
                         for dir in dirs:
                             os.chmod(os.path.join(root, dir), 0o755)  # Права для папок
                         for file in files:
@@ -204,6 +207,7 @@ def main(mode, arguments):
                     result = run_command(COMMANDS['ftp_end'])
                     print(result)
                     print('Архив удален')
+
             else:
                 print('Название режима отсутствует\n')
                 return 'Название режима отсутствует'
@@ -213,6 +217,13 @@ def main(mode, arguments):
                 if os.path.exists(os.path.join(DATA_PATH, mode_name)):
                     modename_path = os.path.join(DATA_PATH, mode_name)
                     shutil.rmtree(modename_path)
+                    models = os.listdir(MODELS_PATH)
+                    for model in models:
+                        model_name = model.split('-')[1]
+                        if model_name == f'{mode_name}.pth':
+                            os.remove(os.path.join(MODELS_PATH, model))
+                            print(f'Удалена модель {model}')
+
                     print(f'Режим {mode_name} удален')
                 else:
                     print('Режим не существует\n')
