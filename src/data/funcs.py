@@ -16,7 +16,7 @@ print = log.printml
 def solve_imbalance(data):
     labels = [label for _, label in data]
     class_counts = np.bincount(labels)
-    print(f'Кол-во изображений в каждом классе: {class_counts}')
+    #print(f'Кол-во изображений в каждом классе: {class_counts}')
     class_weights = 1. / class_counts
     sample_weights = class_weights[labels]
     sampler = WeightedRandomSampler(weights=sample_weights, num_samples= len(sample_weights), replacement=True)

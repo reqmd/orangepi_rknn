@@ -229,7 +229,7 @@ def main(mode, arguments):
                     d_path = os.path.join(modename_path, 'images')
                     data = LabeledDataset(d_path)
                     timestamp_train_start = time.time()
-                    __hyperparams__(data, mode_name = mode_name, f1_threshhold=0.99)
+                    __hyperparams__(data, mode_name = mode_name, f1_threshhold=0.98)
                     timestamp_train_end = time.time()
                     print(f'Обучение продлилось {timestamp_train_end - timestamp_train_start:.2f} секунд или {(timestamp_train_end - timestamp_train_start) / 60:.2f} минут')
                 else:

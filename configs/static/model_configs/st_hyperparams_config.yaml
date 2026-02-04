@@ -2,20 +2,9 @@ Base:
   batch_size:
   - int
   - low: 4
-    high: 16
+    high: 32
     step: 4
 Models:
-  SP:
-    lr:
-    - float
-    - low: 0.0001
-      high: 0.001
-      step: 0.0001
-    weight_decay:
-    - float
-    - low: 0.0001
-      high: 0.01
-      step: 0.0001
   MLP16:
     lr:
     - float
@@ -32,7 +21,7 @@ Models:
     - low: 64
       high: 512
       step: 64
-  MLP32:
+  EDGEAI28:
     lr:
     - float
     - low: 0.0001
@@ -48,6 +37,16 @@ Models:
     - low: 128
       high: 1024
       step: 128
+    dropout_p:
+    - float
+    - low: 0
+      high: 0.5
+      step: 0.1
+    n_filters:
+    - int
+    - low: 4
+      high: 64
+      step: 4
   CNN:
     lr:
     - float
@@ -68,12 +67,28 @@ Models:
     - float
     - low: 0
       high: 1
-      step: 0.125
+      step: 0.1
     n_filters:
     - int
     - low: 4
       high: 64
       step: 4
+  ShuffleNet:
+    lr:
+    - float
+    - low: 0.00001
+      high: 0.0001
+      step: 0.00001
+    weight_decay:
+    - float
+    - low: 0.0001
+      high: 0.01
+      step: 0.0001
+    alpha:
+    - float
+    - low: 0.5
+      high: 1
+      step: 0.5
   MobileNet:
     lr:
     - float

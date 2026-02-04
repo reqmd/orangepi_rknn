@@ -9,9 +9,9 @@ import time
 
 from src.data.dataset import LabeledDataset
 from src.data.funcs import dataset_into_loader, train_test_split
-from src.models.SP import SP
+from src.models.ShuffleNet import ShuffleNet
+from src.models.EDGEAI28 import EDGEAI28
 from src.models.MLP16 import MLP16
-from src.models.MLP32 import MLP32
 from src.models.CNN import CNN
 from src.models.MobileNet import MobileNet
 from src.utils.config_funcs import load_yaml, save_yaml
@@ -137,14 +137,14 @@ def trial_config(trial: optuna.Trial, param: dict):
 
 def match_case(model_name: str, trials_model: dict, num_classes: int):
     match model_name:
-        case 'SP':
-            model = SP(num_classes=num_classes, **trials_model)
         case 'MLP16':
             model = MLP16(num_classes=num_classes, **trials_model)
-        case 'MLP32':
-            model = MLP32(num_classes=num_classes, **trials_model)
+        case 'EDGEAI28':
+            model = EDGEAI28(num_classes=num_classes, **trials_model)
         case 'CNN':
             model = CNN(num_classes=num_classes, **trials_model)
+        case 'ShuffleNet':
+            model = ShuffleNet(num_classes=num_classes, **trials_model)
         case 'MobileNet':
             model = MobileNet(num_classes=num_classes, **trials_model)
     return model

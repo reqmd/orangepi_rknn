@@ -2,8 +2,8 @@ import numpy as np
 
 from src.data.dataset import LabeledDataset
 from .config_funcs import load_yaml, save_yaml
-from src.models.SP import SP
-from src.models.MLP32 import MLP32
+from src.models.ShuffleNet import ShuffleNet
+from src.models.EDGEAI28 import EDGEAI28
 from src.models.MLP16 import MLP16
 from src.models.CNN import CNN
 from src.models.MobileNet import MobileNet
@@ -43,12 +43,12 @@ def match_case(params: dict):
         del _model_params_[key]
     print(_model_params_)
     match model_name:
-        case 'SP':
-            model = SP(**_model_params_)
+        case 'EDGEAI28':
+            model = EDGEAI28(**_model_params_)
         case 'MLP16':
             model = MLP16(**_model_params_)
-        case 'MLP32':
-            model = MLP32(**_model_params_)
+        case 'ShuffleNet':
+            model = ShuffleNet(**_model_params_)
         case 'CNN':
             model = CNN(**_model_params_)
         case 'MobileNet':

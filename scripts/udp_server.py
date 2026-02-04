@@ -137,7 +137,8 @@ while True:
                 response = [resp, mode]
                 byte_data = bytes(response)
                 print(byte_data)
-                sendfivetimes(byte_data=byte_data)
+                #sendfivetimes(byte_data=byte_data)
+                sock.sendto(byte_data, addr)
                 stop_event.clear()
                 training_thread = threading.Thread(target=train_model, args=(mode,arguments))
                 training_thread.start()
@@ -162,7 +163,8 @@ while True:
             elif (mode == 2) or (mode == 6):
                 response = [resp, mode]
                 byte_data = bytes(response)
-                sendfivetimes(byte_data=byte_data)
+                sock.sendto(byte_data, addr)
+                #sendfivetimes(byte_data=byte_data)
                 exit_code = main.main(mode, arguments)
                 if exit_code != 0:
                     response = [1, mode]

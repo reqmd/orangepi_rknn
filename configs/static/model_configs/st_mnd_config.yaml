@@ -1,12 +1,12 @@
 model:
-- SP
 - MLP16
-- MLP32
+- EDGEAI28
 - CNN
+- ShuffleNet
 - MobileNet
 size:
-- 8
 - 16
-- 32
+- 28
 - 64
+- 224
 - 224

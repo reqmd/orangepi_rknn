@@ -1,10 +1,12 @@
 models:
 - MLP16
-- MLP32
+- EDGEAI28
 - CNN
+- ShuffleNet
 - MobileNet
 resolutions:
 - 16
-- 32
+- 28
 - 64
+- 224
 - 224

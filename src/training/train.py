@@ -14,13 +14,12 @@ from logs.logger import mylogger
 
 def __train__(data, model_name, modename_path,
               use_for_hyperparams = False):
-    if use_for_hyperparams != True:
-        # логирование в файл результатов обучения
-        MODELS_PATH = './models'
-        LOG_FILE = './logs/udp_server_output.log'
-        PRINT_TO_FILE = True
-        log = mylogger(LOG_FILE, PRINT_TO_FILE)
-        print = log.printml
+    # логирование в файл результатов обучения
+    MODELS_PATH = './models'
+    LOG_FILE = './logs/udp_server_output.log'
+    PRINT_TO_FILE = True
+    log = mylogger(LOG_FILE, PRINT_TO_FILE)
+    print = log.printml
         
     labels = [label for _, label in data]
     class_counts = np.bincount(labels)
