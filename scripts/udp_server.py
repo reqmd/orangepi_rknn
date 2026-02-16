@@ -25,6 +25,7 @@ BYTES_TO_COMMAND = {
     9:'sendresult',
     10:'stop',
     11:'status',
+    12:'ismodeexists'
 }
 
 RESPONSE_TO_BYTES = {

@@ -1,7 +1,6 @@
 import os
 import tarfile
 import shutil
-import subprocess
 import stat
 from datetime import datetime
 
@@ -40,6 +39,7 @@ BYTES_TO_COMMAND = {
     9:'sendresult',
     10:'stop',
     11:'status',
+    12:'ismodeexists'
 }
 
 params_to_modify = ['/home/ubuntu/NAS-project/configs/static/prep_configs/st_prep_pseudolabel.yaml',       #YAMl файл отвечающий за параметры псевдоразметки
@@ -372,6 +372,18 @@ def main(mode, arguments):
                     if result != 0:
                         return f'Программа завершилась с ошибкой {result}'
                 
+            else:
+                print('Название режима отсутствует\n')
+                return 'Название режима отсутствует'
+            
+        case 'ismodeexists':
+            if mode_name != None:
+                if os.path.exists(os.path.join(DATA_PATH, mode_name)):
+                    return 0
+                else:
+                    print(f'Режима {mode_name} нет')
+                    return f'Режима {mode_name} нет'
+
             else:
                 print('Название режима отсутствует\n')
                 return 'Название режима отсутствует'
