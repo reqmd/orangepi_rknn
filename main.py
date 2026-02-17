@@ -330,13 +330,13 @@ def main(mode, arguments):
                         os.mkdir(os.path.join(mode_path, 'test'))
                         for image in images_list:
                             print(os.path.join(camera_path, image))
-                            os.rename(os.path.join((camera_path, image), f'{os.path.join(mode_path, 'test')}/{camera}_{image}'))
+                            os.rename(os.path.join(camera_path, image), f'{os.path.join(mode_path, 'test')}/{camera}_{image}')
                         shutil.rmtree(camera_path)
                         
                     result = run_command(COMMANDS['ftp_end'])
                     print(result)
                     print('Архив удален')
-                    __rknn__(model_name=inf_model, data_root=main_path, classes = classes)
+                    __rknn__(model_name=inf_model, data_root=mode_path, classes = classes)
                     annot_root = os.path.join(DATA_PATH, mode_name, 'annotations')
                     if os.path.exists(annot_root):
                         result = run_check_call(args=[COMMANDS['sendannot'], annot_root])

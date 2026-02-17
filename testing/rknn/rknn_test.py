@@ -34,7 +34,7 @@ def export_pytorch_model(model_name, classes):
     return rknn_name
 
 def generate_txt(data_root):
-    images_root = data_root
+    images_root = os.path.join(data_root, 'test')
     images_list = os.listdir(images_root)
     with open(os.path.join(data_root, 'annotations', 'dataset_annot.txt'), 'w') as file:
         for image in images_list:
