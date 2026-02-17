@@ -188,7 +188,9 @@ def main(mode, arguments):
                     for item in os.listdir(TARS_PATH):
                         source_item = os.path.join(TARS_PATH, item)
                         target_item = os.path.join(mode_name, item)
-                        shutil.move(source_item, target_item)
+                        print(source_item)
+                        print(target_item)
+                        #shutil.move(source_item, target_item)
                     # преобразование содержимого архива в набор данных
                     classes = os.listdir(mode_path)
                     for cls in classes:
@@ -321,28 +323,30 @@ def main(mode, arguments):
 
                     # преобразование содержимого архива в набор данных
                     cameras = os.listdir(mode_path)
+                    os.mkdir(os.path.join(mode_path, 'test'))
                     for camera in cameras:
                         camera_path = os.path.join(mode_path, camera)
                         current_mode = os.stat(camera_path).st_mode
                         new_mode = current_mode | stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
                         os.chmod(camera_path, new_mode)
                         images_list = os.listdir(camera_path)
-                        os.mkdir(os.path.join(mode_path, 'test'))
                         for image in images_list:
                             print(os.path.join(camera_path, image))
-                            os.rename(os.path.join(camera_path, image), f'{os.path.join(mode_path, 'test')}/{camera}_{image}')
+                            test_path = os.path.join(mode_path, 'test')
+                            os.rename(os.path.join(camera_path, image), f'{test_path}/{camera}_{image}')
                         shutil.rmtree(camera_path)
                         
                     result = run_command(COMMANDS['ftp_end'])
                     print(result)
                     print('Архив удален')
-                    __rknn__(model_name=inf_model, data_root=mode_path, classes = classes)
+                    classes = os.listdir(os.path.join(DATA_PATH, mode_name, 'images'))
+                    __rknn__(model_name=inf_model, data_root=main_path, classes = classes)
                     annot_root = os.path.join(DATA_PATH, mode_name, 'annotations')
+                    print(f'Путь: {annot_root}')
                     if os.path.exists(annot_root):
+                        print(annot_root)
                         result = run_check_call(args=[COMMANDS['sendannot'], annot_root])
-                        print(f'chech_call завершился с кодом {result}')
-                        if result != 0:
-                            return f'Программа завершилась с ошибкой {result}'
+                        print(result)
                     else:
                         print('Папки аннотаций не существует\n')
                         return 'Папки аннотаций не существует'

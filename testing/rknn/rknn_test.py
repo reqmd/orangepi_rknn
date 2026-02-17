@@ -56,7 +56,7 @@ def __rknn__(model_name, data_root, classes):
     res = params['resolution']
     input_size = [[1, 3, res, res]]
     _, val_transform = return_transforms(resolutions=res)
-    data = LabeledDataset(data_root, transform=val_transform)
+    data = LabeledDataset(os.path.join(data_root, 'test'), transform=val_transform)
     rknn_name = export_pytorch_model(model_name=model_name, classes = classes)
     rknn = RKNN(verbose=True)
     dataset_root = generate_txt(data_root=data_root)
