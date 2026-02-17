@@ -320,21 +320,22 @@ def main(mode, arguments):
                             return 'Не удалось распаковать архив или архива нет в нужной папке'
 
                     # преобразование содержимого архива в набор данных
-                    classes = os.listdir(mode_path)
-                    for cls in classes:
-                        cls_path = os.path.join(mode_path, cls)
-                        current_mode = os.stat(cls_path).st_mode
+                    cameras = os.listdir(mode_path)
+                    for camera in cameras:
+                        camera_path = os.path.join(mode_path, camera)
+                        current_mode = os.stat(camera_path).st_mode
                         new_mode = current_mode | stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
-                        os.chmod(cls_path, new_mode)
-                        cameras_list = os.listdir(cls_path)
-                        for camera_num in cameras_list:
-                            camera_path = os.path.join(cls_path, camera_num)
-                            images_list = os.listdir(camera_path)
-                            for image in images_list:
-                                os.rename(os.path.join(cls_path, camera_num, image), f'{cls_path}/{camera_num}_{image}')
-                            shutil.rmtree(camera_path)
-                    
-                    classes = os.listdir(os.path.join(DATA_PATH, mode_name, 'images'))
+                        os.chmod(camera_path, new_mode)
+                        images_list = os.listdir(camera_path)
+                        os.mkdir(os.path.join(mode_path, 'test'))
+                        for image in images_list:
+                            print(os.path.join(camera_path, image))
+                            os.rename(os.path.join((camera_path, image), f'{os.path.join(mode_path, 'test')}/{camera}_{image}'))
+                        shutil.rmtree(camera_path)
+                        
+                    result = run_command(COMMANDS['ftp_end'])
+                    print(result)
+                    print('Архив удален')
                     __rknn__(model_name=inf_model, data_root=main_path, classes = classes)
                     annot_root = os.path.join(DATA_PATH, mode_name, 'annotations')
                     if os.path.exists(annot_root):
@@ -378,10 +379,9 @@ def main(mode, arguments):
             
         case 'ismodeexists':
             if mode_name != None:
-                if os.path.exists(os.path.join(DATA_PATH, mode_name)):
-                    return 0
-                else:
-                    print(f'Режима {mode_name} нет')
+                print(mode_name)
+                if not os.path.exists(os.path.join(DATA_PATH, mode_name)):
+                    print(f'Режима {mode_name} нет по путю {os.path.join(DATA_PATH, mode_name)}')
                     return f'Режима {mode_name} нет'
 
             else:

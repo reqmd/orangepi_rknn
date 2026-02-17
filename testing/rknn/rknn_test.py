@@ -35,19 +35,11 @@ def export_pytorch_model(model_name, classes):
 
 def generate_txt(data_root):
     images_root = data_root
-    folders = os.listdir(os.path.join(images_root, 'test')) #заведомо должны понимать, что папка должна быть одна
-    print(folders)
-    if len(folders) != 1:
-        print('Папка не одна или её нет, поэтому невозможно сделать тестирование')
-        return 1
-    else:
-        folder = folders[0]
-        i_root = os.path.join(images_root, 'test', folder)
-        images_list = os.listdir(i_root)
-        with open(os.path.join(data_root, 'annotations', 'dataset_annot.txt'), 'w') as file:
-            for image in images_list:
-                file.write(f'{image}\n')
-            file.close()
+    images_list = os.listdir(images_root)
+    with open(os.path.join(data_root, 'annotations', 'dataset_annot.txt'), 'w') as file:
+        for image in images_list:
+            file.write(f'{image}\n')
+        file.close()
     pass
 
 def softmax(x):
@@ -64,7 +56,7 @@ def __rknn__(model_name, data_root, classes):
     res = params['resolution']
     input_size = [[1, 3, res, res]]
     _, val_transform = return_transforms(resolutions=res)
-    data = LabeledDataset(os.path.join(data_root, 'test'), transform=val_transform)
+    data = LabeledDataset(data_root, transform=val_transform)
     rknn_name = export_pytorch_model(model_name=model_name, classes = classes)
     rknn = RKNN(verbose=True)
     dataset_root = generate_txt(data_root=data_root)
