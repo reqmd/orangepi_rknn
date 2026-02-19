@@ -208,6 +208,9 @@ while True:
         resp = 3
         response = [resp, mode]
         byte_data = bytes(response)
-        sock.sendto(byte_data, addr)
+        if (mode == 2) or (mode == 6) or (mode == 5):
+            sendfivetimes(byte_data=byte_data)
+        else:
+            sock.sendto(byte_data, addr)
         print(byte_data)
         #print(response)

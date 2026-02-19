@@ -271,14 +271,16 @@ def main(mode, arguments):
                     shutil.rmtree(test_path)
                     os.mkdir(test_path)
                     models_list = os.listdir(MODELS_PATH)
+                    models_list = sorted(models_list)
                     print(models_list)
                     for model in models_list:
                         model_name = model.split('-')
-                        print(model_name[1], f'{arguments[0]}.pth')
+                        print(model_name)
                         if len(model_name) < 2:
                             continue
                         if model_name[1] == f'{arguments[0]}.pth':
                             inf_model = os.path.join(MODELS_PATH, model)
+                            print(f'Выбрана модель {inf_model}')
                         else:
                             print('Модель для такого режима не найдена\n')
                             
