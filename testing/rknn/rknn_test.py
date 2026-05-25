@@ -13,8 +13,8 @@ from src.data.dataset import LabeledDataset
 from logs.logger import mylogger
 
 # логирование в файл результатов обучения
-MODELS_PATH = '/home/ubuntu/NAS-project/models'
-LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
+MODELS_PATH = '/home/ubuntu/orangepi_rknn/models'
+LOG_FILE = '/home/ubuntu/orangepi_rknn/logs/udp_server_output.log'
 PRINT_TO_FILE = True
 log = mylogger(LOG_FILE, PRINT_TO_FILE)
 print = log.printml

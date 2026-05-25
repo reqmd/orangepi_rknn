@@ -1,2 +1,2 @@
 #!/bin/bash
-/home/ubuntu/NAS-project/scripts/__sendlog__.sh
+/home/ubuntu/orangepi_rknn/scripts/__sendlog__.sh

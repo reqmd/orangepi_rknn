@@ -18,12 +18,12 @@ TARS_PATH = './tars'
 MODELS_PATH = './models'
 
 COMMANDS = {
-    'ftp': "/home/ubuntu/NAS-project/scripts/__ftp__.sh",
-    'sendlog':"/home/ubuntu/NAS-project/scripts/__sendlog__.sh",
-    'sendannot':"/home/ubuntu/NAS-project/scripts/__sendannot__.sh",
-    'sendmodel':"/home/ubuntu/NAS-project/scripts/__sendmodel__.sh",
-    'sendresult':'/home/ubuntu/NAS-project/scripts/__sendresult__.sh',
-    'ftp_end':'/home/ubuntu/NAS-project/scripts/__ftp_end__.sh'
+    'ftp': "/home/ubuntu/orangepi_rknn/scripts/__ftp__.sh",
+    'sendlog':"/home/ubuntu/orangepi_rknn/scripts/__sendlog__.sh",
+    'sendannot':"/home/ubuntu/orangepi_rknn/scripts/__sendannot__.sh",
+    'sendmodel':"/home/ubuntu/orangepi_rknn/scripts/__sendmodel__.sh",
+    'sendresult':'/home/ubuntu/orangepi_rknn/scripts/__sendresult__.sh',
+    'ftp_end':'/home/ubuntu/orangepi_rknn/scripts/__ftp_end__.sh'
 }
 
 BYTES_TO_COMMAND = {
@@ -42,9 +42,9 @@ BYTES_TO_COMMAND = {
     12:'ismodeexists'
 }
 
-params_to_modify = ['/home/ubuntu/NAS-project/configs/static/prep_configs/st_prep_pseudolabel.yaml',       #YAMl файл отвечающий за параметры псевдоразметки
-                    '/home/ubuntu/NAS-project/configs/static/prep_configs/st_prep_config.yaml',            #YAMl файл отвечающий за кол-во эпох и устройство, на котором будет проводиться обучение
-                    '/home/ubuntu/NAS-project/configs/static/prep_configs/st_prep_hyperparams_config.yaml' #YAMl файл отвечающий за параметры подбора гиперпараметров
+params_to_modify = ['/home/ubuntu/orangepi_rknn/configs/static/prep_configs/st_prep_pseudolabel.yaml',       #YAMl файл отвечающий за параметры псевдоразметки
+                    '/home/ubuntu/orangepi_rknn/configs/static/prep_configs/st_prep_config.yaml',            #YAMl файл отвечающий за кол-во эпох и устройство, на котором будет проводиться обучение
+                    '/home/ubuntu/orangepi_rknn/configs/static/prep_configs/st_prep_hyperparams_config.yaml' #YAMl файл отвечающий за параметры подбора гиперпараметров
                     ]
 
     
@@ -86,7 +86,7 @@ def main(mode, arguments):
     Обрабатывается вне main
     stop - Остановка обучения (sudo systemctl restart u.service)
     '''
-    LOG_FILE = '/home/ubuntu/NAS-project/logs/udp_server_output.log'
+    LOG_FILE = '/home/ubuntu/orangepi_rknn/logs/udp_server_output.log'
     log = mylogger(LOG_FILE, PRINT_TO_FILE)
     print = log.printml
     

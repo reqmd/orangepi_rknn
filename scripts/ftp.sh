@@ -1,2 +1,2 @@
 #!/bin/bash
-/home/ubuntu/NAS-project/scripts/__ftp__.sh
+/home/ubuntu/orangepi_rknn/scripts/__ftp__.sh
